@@ -1,0 +1,1273 @@
+<apex:page controller="wishApplicationController" showHeader="false" standardStylesheets="false" applyHTMLTag="false" language="en-AU">
+    
+    <html lang="en">
+        <head>
+            <meta charset="utf-8"/>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+            <!-- scrolling viewport -->
+            <!--<meta name="viewport" content="width=device-width, initial-scale=1" />-->
+            <!-- no scrolling viewport -->
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+            
+            <title>Make A Wish - Wish Application</title>
+            
+            <!-- jQuery -->
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.js')}"/>
+            <script >
+            j$ = jQuery.noConflict(); //salesforce uses $
+            </script>
+            
+            <!-- jQuery UI -->
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jqueryui.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/css/jqueryuicss.css')}"/>
+            
+            <!-- jQuery Validator -->
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.validate.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/additional-methods.js')}"/>
+            
+            <!-- Bootstrap -->
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/bootstrap/js/bootstrap.min.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/bootstrap/css/bootstrap.min.css')}"/>
+            
+            <script>
+            
+            j$(function () {
+                init();
+            });
+            
+            function loading() {
+                
+                j$('.loadingImage').css('display', 'inline');
+                j$('.submitBtn').prop('disabled', true);
+                
+            }
+            
+            function loadingReturn() {
+                
+                j$('.loadingImage').css('display', 'none');
+                j$('.submitBtn').prop('disabled', false);
+                
+                if (j$("#err").doesExist()) {
+                    j$('html, body').animate({
+                        scrollTop: j$("#err").offset().top
+                    }, 500);
+                }
+                
+                return false;
+            }
+            
+            function init() {
+                loadingReturn();
+                setValidation();
+            }
+            
+            function setValidation() {
+                
+                j$.validator.addMethod('dateAU', function (value, element) {
+                    return this.optional(element) || /^(0?\d|[12]\d|3[01])\/(0?\d|1[012])\/\d{4}$/.test(value);
+                }, 'Please enter a valid date.');
+                j$.validator.addClassRules('datePickerDOB, datePickerDOBap', {dateAU: true});
+                
+                j$.validator.addMethod('postcode', function (value, element) {
+                    return this.optional(element) || /^\d{4}$/.test(value);
+                }, 'Please enter a valid postcode.');
+                j$.validator.addClassRules('postcode', {postcode: true});
+                
+                j$('.datePickerDOB').datepicker({
+                    yearRange: "-22:+0",
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: 'dd/mm/yy'
+                });
+                j$('.datePickerDOB').attr('readonly', true);
+                
+                j$('.datePickerDOBap').datepicker({
+                    yearRange: "-101:+0",
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: 'dd/mm/yy'
+                });
+                j$('.datePickerDOBap').attr('readonly', true);
+                
+                j$("[id$=wishApplicationForm]").validate({
+                    debug: true,
+                    submitHandler: function (form) {
+                        loading();
+                        submitForm();
+                    },
+                    errorPlacement: function (error, element) {
+                        if (element.attr("type") == "radio") {
+                            error.insertAfter(element.closest("table"));
+                        } else if (element.attr("type") == "select") {
+                            error.insertAfter(element.closest("table"));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    }
+                });
+                
+                if (j$("table.requiredRadios input[type=radio]").doesExist()) {
+                    j$("table.typeList input[type=radio]").rules("add", {required: true});
+                }
+                
+                if (j$("textarea.max255").doesExist()) {
+                    j$("textarea.max255]").rules("add", {maxlength: 255});
+                }
+                
+                jQuery.validator.messages.required = "This value is required.";
+            }
+            
+            jQuery.fn.doesExist = function () {
+                return j$(this).length > 0;
+            };
+            </script>
+            
+            <style>
+                
+                div.form-group > label.control-label + div > span {
+                display: inline-block;
+                }
+                
+                body,
+                html {
+                background-color: #0069ba;
+                font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+                }
+                
+                h1 {
+                color: #0069ba;
+                margin: 30px 0;
+                }
+                h2,
+                h3 {
+                color: #333;
+                }
+                
+                #formContainer {
+                background-color: #fff;
+                padding: 2% 5% 7%;
+                margin-bottom: 5%;
+                }
+                
+                .btn {
+                margin: 4px 10px 0 0;
+                }
+                
+                .btn-row {
+                text-align: center;
+                margin-bottom: 10px;
+                }
+                
+                label.error,
+                span.required {
+                color: red;
+                }
+                
+                .loadingDiv {
+                text-align: center;
+                }
+                .loadingImage {
+                height: 32px;
+                }
+                
+                .dateFormat {
+                display: none;
+                }
+                
+                #header img {
+                width: 100%;
+                }
+                
+                div.bluePanel {
+                background-color: #0069ba;
+                color: #fff;
+                padding: 3%;
+                }
+                p.leadParagraph {
+                font-size: 1.1em;
+                font-weight: 600;
+                }
+                
+                .wishQuote {
+                background-color: #4cbfac;
+                color: #fff;
+                padding: 3%;
+                }
+                
+                .wishStory {
+                margin: 3% auto;
+                }
+                .wishStory img {
+                width: 100%;
+                }
+                .wishStoryText {
+                padding: 3%;
+                color: #fff;
+                }
+                .wishStoryText.jacqui {
+                background-color: #af7ab5;
+                }
+                .wishStoryText.ashley {
+                background-color: #faa959;
+                }
+                
+                .col-sm-9 .form-control {
+                width: 90%;
+                }
+                
+                .form-control[disabled],
+                .form-control[readonly],
+                fieldset[disabled] .form-control {
+                cursor: auto;
+                }
+                
+                table th {
+                white-space: nowrap;
+                }
+                
+                span.dateInput.dateOnlyInput {
+                width: 100%;
+                }
+                
+                .ui-datepicker-title select {
+                color: black;
+                font-weight: normal;
+                }
+                
+            </style>
+            
+        </head>
+        
+        <apex:variable var="labelCol" value="col-xs-12 col-sm-3"/>
+        <apex:variable var="labelOffset" value="col-sm-offset-3"/>
+        <apex:variable var="inputCol" value="col-xs-12 col-sm-9"/>
+        <apex:variable var="errorCol" value="col-xs-12 {!labelOffset} col-sm-9"/>
+        
+        <body>
+            <div class="container">
+                
+                <div id="header" class="clearfix">
+                    
+                    <img src="{!URLFOR($Resource.Resources, '/resources/img/header.jpg')}" alt="Make A Wish Australia"/>
+                    
+                </div>
+                
+                <div id="formContainer" class="form-horizontal clearfix">
+                    
+                    <h1>
+                        Wish Application Form
+                    </h1>
+                    
+                    <div class="bluePanel">
+                        <p class="leadParagraph">
+                            Make-A-Wish&reg; Australia makes wishes come true for children and teenagers (aged three to 18) facing life-threatening medical conditions.
+                        </p>
+                        <p>
+                            To apply for a wish, please complete the below form. Children may fill out the form themselves, as a request for an e-signature will be sent to the parent or legal guardian to confirm your consent.
+                        </p>
+                        <p>
+                            Once your completed application is approved, we'll take your child on a unique wish journey towards making their cherished wish come true, and help build their resilience with every step along the way.
+                        </p>
+                        <p>
+                            We look forward to working with you to make a life-changing impact. If you have any questions about applying for a wish, please fill in this online enquiry form, read the frequently asked questions or give us a call on 1800 032 260
+                        </p>
+                    </div>
+                    
+                    <apex:form id="wishApplicationForm">
+                        
+                        <h2>
+                            Your Details
+                        </h2>
+                        
+                        <div class="form-group clearfix">
+                            <label class="control-label {!labelCol}">
+                                Relationship to child?
+                                <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:actionRegion >
+                                    <apex:inputField value="{!wishCase.Referral_Relationship_to_Child__c}" styleClass="required form-control" rendered="{!caseId == null}">
+                                        <apex:actionSupport event="onchange" reRender="moreFormPanel" action="{!checkConsent}" status="changeStatus" oncomplete="init();"/>
+                                    </apex:inputField>
+                                    <apex:inputField value="{!wishCase.Relationship_to_child__c}" styleClass="required form-control" rendered="{!caseId != null}">
+                                        <apex:actionSupport event="onchange" reRender="moreFormPanel" action="{!checkConsent}" status="changeStatus" oncomplete="init();"/>
+                                    </apex:inputField>
+                                </apex:actionRegion>
+                            </div>
+                        </div>
+                        
+                        <div class="loadingDiv">
+                            <apex:actionStatus id="changeStatus">
+                                <apex:facet name="start">
+                                    <img src="{!URLFOR($Resource.Resources, '/resources/img/loader.gif')}" alt="loading"/>
+                                </apex:facet>
+                            </apex:actionStatus>
+                        </div>
+                        
+                        <p style="display:none;">
+                            Consent {!hasConsent}
+                            <br/>
+                            Medical {!hasMedical}
+                            <br/>
+                            Child {!isChild}
+                            <br/>
+                            Determiner {!childDeterminer}
+                            <br/>
+                        </p>
+                        
+                        <apex:outputPanel id="moreFormPanel">
+                            
+                            <apex:outputPanel rendered="{!OR(wishCase.Referral_Relationship_to_Child__c!=null,wishCase.Relationship_to_child__c!=null)}">
+                                
+                                <!-- R -->
+                                
+                                <apex:outputPanel rendered="{!!hasConsent}">
+                                    
+                                    <apex:outputPanel rendered="{!isChild}">
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}" title="{!isChild}">
+                                                Have you spoken to your parent or guardian about applying for a wish?
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.Spoken_to_Parent_Guardian__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}" title="child">
+                                                First Name
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_First_Name__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Last Name
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_Last_Name__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Gender
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_Gender__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Date of Birth
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_DOB__c}" styleClass="required datePickerDOB form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                    </apex:outputPanel>
+                                    
+                                    <apex:outputPanel rendered="{!!isChild}">
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Have you spoken to the child's parent or guardian about Make-A-Wish?
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.Spoken_to_Parent_Guardian__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                First Name
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.R_First_Name__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Surname
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.R_Surname__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <apex:outputPanel rendered="{!wishCase.Referral_Relationship_to_Child__c == 'Social Worker'}">
+                                            <div class="form-group">
+                                                <label class="control-label {!labelCol}">
+                                                    Phone
+                                                </label>
+                                                <div class="{!inputCol}">
+                                                    <apex:inputField value="{!wishCase.SW_Phone__c}" styleClass=" form-control"/>
+                                                </div>
+                                            </div>
+                                        </apex:outputPanel>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Email
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.R_Email__c}" styleClass="required email form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Address
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.R_Address__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Suburb
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.R_Suburb__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                State
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.R_State__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Postcode
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.R_Postcode__c}" styleClass="form-control required postcode"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <apex:outputPanel rendered="{!wishCase.Referral_Relationship_to_Child__c == 'Social Worker'}">
+                                            <div class="form-group">
+                                                <label class="control-label {!labelCol}">
+                                                    This child also has a case worker
+                                                </label>
+                                                <div class="{!inputCol}">
+                                                    <apex:inputCheckbox value="{!wishCase.Child_also_has_a_case_worker__c}"/>
+                                                </div>
+                                            </div>
+                                        </apex:outputPanel>
+                                        
+                                    </apex:outputPanel>
+                                    
+                                    <h2>
+                                        Parent / Guardian Details
+                                    </h2>
+                                    
+                                </apex:outputPanel>
+                                
+                                <!-- PC -->
+                                <apex:outputPanel rendered="{!!hasConsent}">
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Relationship
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Relationship_to_child__c}" styleClass="required form-control">
+                                                <apex:actionSupport event="onchange" reRender="guardian_gender" oncomplete="init();"/>
+                                            </apex:inputField>
+                                        </div>
+                                    </div>
+                                    
+                                </apex:outputPanel>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        First Name
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_First_Name__c}" styleClass="required form-control"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        Surname
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_Surname__c}" styleClass="required form-control"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        Date of Birth
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_DOB__c}" styleClass="required form-control datePickerDOBap"/>
+                                    </div>
+                                </div>
+                                
+                                <apex:outputPanel id="guardian_gender">
+                                    <apex:outputPanel rendered="{!wishCase.Relationship_to_child__c == 'Legal Guardian'}">
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Gender
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.PC_Gender__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        Phone
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_Phone__c}" styleClass="required form-control"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        Mobile
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_Secondary_Phone__c}" styleClass="form-control"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        Email
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_Email__c}" styleClass="email required form-control"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        Address
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_Address__c}" styleClass="form-control required"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        Suburb
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_Suburb__c}" styleClass="form-control required"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        State
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_State__c}" styleClass="form-control required"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        Postcode
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.PC_Postcode__c}" styleClass="form-control required postcode"/>
+                                    </div>
+                                </div>
+                                
+                                <apex:outputPanel rendered="{!!isChild}">
+                                    
+                                    <!--
+<div class="wishQuote">
+<p>
+"My five year old son is in the final stage of organising his wish and may I tell you it is a fantastic wish. The process of making a wish is not just the end result but it is the happiness gained in organising and creating the wish. My son has
+been organising and looking forward to his wish for a long time, but this has given him joy and a goal. Thank you Make-A-Wish for the many smiles already gained."
+</p>
+- Wish Mum, Amanda
+</div>
+-->
+                                    
+                                    <!-- C -->
+                                    
+                                    <apex:outputPanel rendered="{!wishCase.Referral_Relationship_to_Child__c != 'Wish Child'}">
+                                        
+                                        <h2>
+                                            Child's Details
+                                        </h2>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Child's First Name
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_First_Name__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Child's Last Name
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_Last_Name__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Gender
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_Gender__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Date of Birth
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_DOB__c}" styleClass="required datePickerDOB form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                    </apex:outputPanel>
+                                    
+                                    <!-- Consent -->
+                                    
+                                    <apex:outputPanel rendered="{!OR(hasConsent, hasMedical)}">
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Address
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_Address__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Suburb
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_City__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                State
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_State__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Postcode
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.C_Postcode__c}" styleClass="required form-control postcode"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Are they currently in respite care?
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.Currently_in_respite_care__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <apex:outputPanel rendered="{!hasMedical}">
+                                            
+                                            <div class="form-group">
+                                                <label class="control-label {!labelCol}">
+                                                    Is the Wish urgent?
+                                                </label>
+                                                <div class="{!inputCol}">
+                                                    <apex:inputField value="{!wishCase.Urgent_Wish__c}" styleClass="required form-control"/>
+                                                </div>
+                                            </div>
+                                            
+                                        </apex:outputPanel>
+                                        
+                                    </apex:outputPanel>
+                                    
+                                    <!-- Application Pariticpants -->
+                                    <apex:outputPanel id="apPanel">
+                                        
+                                        <h2>
+                                            Details of all other people residing with the child
+                                        </h2>
+                                        
+                                        <table class="table">
+                                            
+                                            <tr>
+                                                <th>First name</th>
+                                                <th>Surname</th>
+                                                <th>Relationship with child</th>
+                                                <th>Gender</th>
+                                                <th>DOB</th>
+                                            </tr>
+                                            
+                                            <apex:repeat value="{!apList}" var="p">
+                                                
+                                                <tr>
+                                                    <td>
+                                                        <apex:inputField value="{!p.First_Name__c}" styleClass="form-control"/>
+                                                    </td>
+                                                    <td>
+                                                        <apex:inputField value="{!p.Surname__c}" styleClass="form-control"/>
+                                                    </td>
+                                                    <td>
+                                                        <apex:inputField value="{!p.Relationship__c}" styleClass="form-control"/>
+                                                    </td>
+                                                    <td>
+                                                        <apex:inputField value="{!p.Gender__c}" styleClass="form-control"/>
+                                                    </td>
+                                                    <td>
+                                                        <apex:inputField value=" {!p.DOB__c}" styleClass="form-control datePickerDOBap"/>
+                                                    </td>
+                                                </tr>
+                                                
+                                            </apex:repeat>
+                                            
+                                        </table>
+                                        
+                                        <div style="text-align:right;">
+                                            
+                                            <apex:actionStatus id="apStatus">
+                                                <apex:facet name="start">
+                                                    <img src="{!URLFOR($Resource.Resources, '/resources/img/loader.gif')}" style="height:26px;margin:6px;" alt="loading"/>
+                                                </apex:facet>
+                                            </apex:actionStatus>
+                                            
+                                            <apex:commandButton value="add another" action="{!addAppPart}" reRender="apPanel" styleClass="btn btn-primary" oncomplete="init()" status="apStatus"/>
+                                            
+                                        </div>
+                                        
+                                    </apex:outputPanel>
+                                    
+                                    <apex:outputPanel rendered="{!wishCase.Referral_Relationship_to_Child__c != 'Treating Medical Specialist'}">
+                                        <h2>
+                                            Treating Medical Specialist
+                                        </h2>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Title
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.MP_Title__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                First Name
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.MP_First_Name__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Surname
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.MP_Surname__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Hospital where specialist treats {!childDeterminer} child
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.MP_Hospital__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Hospital Department
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.MP_Department__c}" styleClass="form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Phone
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.MP_Phone__c}" styleClass="required form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Fax
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.MP_Fax__c}" styleClass="form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Email
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.MP_Email__c}" styleClass="form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                    </apex:outputPanel>
+                                    
+                                    <h2>
+                                        Medical Condition
+                                    </h2>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Child's Condition
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.C_Condition__c}" styleClass="required form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Is {!childDeterminer} child aware that their condition is life-threatening?
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Is_child_aware_condition_is_life_threat__c}" styleClass="required form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Can {!childDeterminer} child communicate verbally?
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Can_your_child_communicate_verbally__c }" styleClass="required form-control"/>
+                                            <span id="helpBlock" class="help-block">
+                                                <b>Note</b>
+                                                volunteers will work with families and non-verbal children to discover the child’s true wish.</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <apex:outputPanel rendered="{!wishCase.Referral_Relationship_to_Child__c != 'Social Worker'}">
+                                        
+                                        <h2>
+                                            Social Worker (if applicable)
+                                        </h2>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Title
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.SW_Title__c}" styleClass="form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                First Name
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.SW_First_Name__c}" styleClass="form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Surname
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.SW_Surname__c}" styleClass="form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Hospital where social worker treats {!childDeterminer} child
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.SW_Hospital__c}" styleClass=" form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Phone
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.SW_Phone__c}" styleClass=" form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                Email
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputField value="{!wishCase.SW_Email__c}" styleClass="email form-control"/>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="control-label {!labelCol}">
+                                                This child also has a case worker
+                                            </label>
+                                            <div class="{!inputCol}">
+                                                <apex:inputCheckbox value="{!wishCase.Child_also_has_a_case_worker__c}"/>
+                                            </div>
+                                        </div>
+                                        
+                                    </apex:outputPanel>
+                                    
+                                    <h2>
+                                        Cultural Considerations
+                                    </h2>
+                                    
+                                    <p>
+                                        <apex:outputText rendered="{!hasConsent}">
+                                            Knowing as much as we can about your family helps us to deliver the best possible wish experience for your child. To ensure that Make-A-Wish is aware of any cultural sensitivities, we would appreciate it if you could answer the questions below
+                                            (optional):
+                                        </apex:outputText>
+                                        <apex:outputText rendered="{!!hasConsent}">
+                                            Knowing as much as we can about the wish child's family helps us to deliver the best possible wish experience. To ensure that Make-A-Wish is aware of any cultural sensitivities, we would appreciate it if you could answer the questions below
+                                            (optional):
+                                        </apex:outputText>
+                                    </p>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            What is the primary language spoken in {!childDeterminer} child's home? (if other than English)
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Primary_language_spoken_at_home__c }" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Does your family need an interpreter?
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Does_family_require_an_interpreter__c  }" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Interpreter Organisation
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Interpreter_Organisation__c   }" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Phone
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.IO_Phone__c   }" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Is {!childDeterminer} child of Aboriginal or Torres Strait Islander descent?
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Aboriginal_or_Torres_Strait_Islander__c   }" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <h2>
+                                        Who referred you to Make-A-Wish?
+                                    </h2>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            For research purposes it is helpful for us to know how you heard about us
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Who_referred_you_to_Make_A_Wish__c}" styleClass="required form-control">
+                                                <apex:actionSupport event="onchange" reRender="otherPanel" oncomplete="init();"/>
+                                            </apex:inputField>
+                                        </div>
+                                    </div>
+                                    
+                                    <apex:outputPanel id="otherPanel">
+                                        <apex:outputPanel rendered="{!wishCase.Who_referred_you_to_Make_A_Wish__c == 'Other'}">
+                                            <div class="form-group">
+                                                <label class="control-label {!labelCol}">
+                                                    Please specify
+                                                    <span class="required">*</span>
+                                                </label>
+                                                <div class="{!inputCol}">
+                                                    <apex:inputField value="{!wishCase.Referral_other__c}" styleClass="required form-control"/>
+                                                </div>
+                                            </div>
+                                        </apex:outputPanel>
+                                    </apex:outputPanel>
+                                    
+                                    <!--
+<div class="wishStory clearfix" style="max-width:960px;">
+
+<img src="{!URLFOR($Resource.Resources, '/resources/img/Ashley.jpg')}" alt="Make A Wish Australia" />
+
+<div class="wishStoryText ashley">
+<p>
+"As a fit, healthy teenager always out and about enjoying life, being diagnosed with acute lymphoblastic leukaemia at 14 completely shook my world. I was in and out of hospital for most of high school, traveling to Brisbane for treatment with my guitar, while my friends started going to parties. Often unable to join in, I embraced my passion for music by making song selections – and people responded to my choices really well! When I had the amazing opportunity to apply for a wish, I wished for DJ equipment to take my skills to the next level.
+</p>
+<p>
+To a large degree, the anticipation of my wish was just as important as the wish itself. It provided me with some exciting stuff to look forward to in the near future. Thanks to my wish, I continued to develop my skills in the music industry as a DJ and also became a music producer. I've played in some of the most amazing clubs and venues in Australia and have been flown to places all over the world to perform - including Fiji and even Kansas City in America!"
+</p>
+</div>
+</div>
+-->
+                                    
+                                    <h2>
+                                        School Details (if applicable)
+                                    </h2>
+                                    
+                                    <p>
+                                        School is unfortunately something that often isn’t routine for really sick kids and teens. When aware of the circumstances, schools can often support {!childDeterminer} child, educate fellow students about the challenges {!childDeterminer} child is
+                                        facing, encourage and maintain regular social contact, and even be involved in {!childDeterminer} child's wish journey
+                                    </p>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Name of school or kindergarten
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Name_of_School_or_Kindergarten__c}" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Address
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.SK_Address__c}" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            State
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.SK_State__c}" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Postcode
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.SK_Postcode__c}" styleClass="form-control postcode"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Are you happy for us to contact {!childDeterminer} child's school regarding their cherished wish?
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.Contact_school_regarding_wish__c }" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Does the school know of {!childDeterminer} child's illness?
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!wishCase.School_know_of_the_child_s_illness__c }" styleClass="form-control"/>
+                                        </div>
+                                    </div>
+                                    
+                                </apex:outputPanel>
+                                
+                                <h2>
+                                    Comments
+                                </h2>
+                                
+                                <div class="form-group">
+                                    <label class="control-label {!labelCol}">
+                                        Comment
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <apex:inputField value="{!wishCase.Description}" styleClass="form-control"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="checkbox">
+                                    <label>
+                                        <apex:inputCheckbox value="{!wishCase.Email_Opt_Out__c}"/>
+                                        Tick here to be excluded from future Make-A-Wish communications (except those required by law or to action and confirm your requests).
+                                    </label>
+                                </div>
+                                
+                                <apex:outputPanel rendered="{!hasConsent}">
+                                    
+                                    <p>
+                                        To process your wish application, Make-A-Wish Australia needs certain information about you.
+                                    </p>
+                                    
+                                    <p>
+                                        Our privacy policy at
+                                        <a href="http://www.makeawish.org.au/privacypolicy" target="_blank">http://www.makeawish.org.au/privacypolicy</a>
+                                        explains: what we do with this information; how it is handled; how it may be shared; how to access or correct it; and our procedure for complaints.
+                                    </p>
+                                    
+                                    <p>
+                                        Queries may be directed to our Privacy Officer by email:
+                                        <a href="mailto:privacyofficer@makeawish.org.au">privacyofficer@makeawish.org.au</a>, mail: PO Box 5006 Burnley Vic 3121, or phone: 1800 032 260.
+                                    </p>
+                                    
+                                    <p>
+                                        <b>I agree to the following:</b>
+                                    </p>
+                                    
+                                    <ul>
+                                        <li>no promises have been made to me by Make-A-Wish Australia, regarding the requested wish;</li>
+                                        <li>all wish requests are subject to approval by Make-A-Wish Australia, and must meet all existing conditions and restrictions;</li>
+                                        <li>all information required regarding the health of the child in this application may be released by the medical specialist to Make-A-Wish Australia and Make-A-Wish Australia may produce a copy of this application to the medical specialist as
+                                            evidence of that authority;</li>
+                                        <li>I will not enter into any discussions or negotiations with third parties or suppliers in relation to the wish, unless I have written permission from Make-A-Wish Australia;</li>
+                                        <li>I have read and understood the Privacy Statement outlined in this brochure and I consent to the collection, use and disclosure of personal information in line with the Privacy Statement;</li>
+                                        <li>where I have provided information about another individual, I declare that the individual has been made aware of that fact and of the contents of the Privacy Statement;</li>
+                                        <li>I acknowledge that a visit from Make-A-Wish volunteers must take place to discuss my child’s wish within 12 months of wish application approval;</li>
+                                        <li>I acknowledge that children must be under the age of 18 at the time of application, however the actual wish may take place up until they turn 21.</li>
+                                    </ul>
+                                </apex:outputPanel>
+                                
+                                <apex:outputPanel id="submitError"><apex:pageMessages /></apex:outputPanel>
+                                
+                                <div class="form-group" style="margin-top:20px;">
+                                    <label class="control-label {!labelCol}"></label>
+                                    <div class="{!inputCol}">
+                                        <input class="btn btn-primary btn-lg submitBtn" type="submit" value="Submit Application"/>
+                                        <apex:actionFunction name="submitForm" action="{!submitWishCase}" onbeforedomupdate="loading()" oncomplete="loadingReturn();" reRender="submitError"/>
+                                        <img class="loadingImage" style="display:none;" src="{!URLFOR($Resource.Resources, '/resources/img/loader.gif')}"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="wishStory clearfix">
+                                    
+                                    <img src="{!URLFOR($Resource.Resources, '/resources/img/Jacqui.jpg')}" alt="Make A Wish Australia"/>
+                                    
+                                    <div class="wishStoryText jacqui">
+                                        <p>
+                                            "When I was 17 I was diagnosed with Hodgkin's lymphoma. By the time doctors found my cancer it had spread throughout my entire body. Within days of being diagnosed, I was pulled out of Grade 12 and my whole world was thrown upside down. Hospital
+                                            visits, chemotherapy – life was taking its toll and I didn’t have a chance. However, that all changed when I met Make-A-Wish.
+                                        </p>
+                                        <p>
+                                            
+                                            My wish took a while to decide on. I knew from the get go I wanted to do something with marine life. I also wanted to challenge myself. After a year of working with Make-A-Wish on what my wish would be, I was presented with my wish to swim with whale
+                                            sharks in Exmouth, WA.
+                                        </p>
+                                        <p>
+                                            The day finally came – and when it happened, words can’t express the feelings that you get when you’re thrown into the water with these huge majestic creatures around you. Make-A-Wish made sure I had an over-the-moon experience. Everything that my
+                                            heart desired came true and it was a truly magical experience. Make-A-Wish brought my family together. That’s something I will never be able to thank them enough for, and I am forever grateful.
+                                        </p>
+                                        <p>
+                                            The best thing about my Make-A-Wish experience was being introduced to Make-A-Wish. Even though one door was closed and something horrible happened to me when I got diagnosed with cancer, being introduced to Make-A-Wish has opened endless doors and
+                                            given me a lot of hope for the future."
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                            </apex:outputPanel>
+                            
+                        </apex:outputPanel>
+                        
+                    </apex:form>
+                    
+                </div>
+                
+            </div>
+            
+        </body>
+    </html>
+</apex:page>

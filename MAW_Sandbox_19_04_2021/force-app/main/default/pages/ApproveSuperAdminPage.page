@@ -1,0 +1,15 @@
+<apex:page showHeader="false" sidebar="false" lightningStylesheets="true">
+    <apex:includeLightning />
+        <script>
+        $Lightning.use("c:ApproveSuperAdminApp", function() {
+            $Lightning.createComponent("c:ApproveSuperAdminCmp",
+                                   {
+                                    },
+                                   "lightning",
+                                   function (cmp) {
+                                       
+                                   });
+    });
+        </script>
+        <div id="lightning"></div>
+</apex:page>

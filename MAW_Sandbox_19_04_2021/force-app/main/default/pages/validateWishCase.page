@@ -1,0 +1,11 @@
+<apex:page standardController="Case" extensions="validateWishCaseController" >
+    
+    <style>
+    .message {display:inline-block;float:left;}
+    </style>
+    
+    <apex:form >
+        <apex:pageMessages escape="false"></apex:pageMessages>   
+    </apex:form>
+    
+</apex:page>

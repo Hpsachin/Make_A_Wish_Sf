@@ -1,0 +1,64 @@
+<apex:page StandardController="Wish__c" extensions="wishTaskController">
+    
+    <style>
+    
+        .taskTable td { vertical-align:top; }
+        .row1 { background:#f2f2f2; }  
+        .taskTable th {
+        background: #999;
+        color: #fff;
+        }
+    </style>
+    
+    <div class="bPageTitle">
+        <div class="ptBody">
+            <div class="content">
+                <img src="/s.gif" alt="Home" class="pageTitleIcon" title="Home" />
+                <h1 class="pageType">Tasks<span class="titleSeparatingColon">:</span></h1>
+                <h2 class="pageDescription"> {!Wish__c.Name} </h2>
+            </div>
+        </div>
+    </div>
+    
+    <apex:form id="tasksForm">
+        <apex:pageBlock >
+        <apex:repeat value="{!TaskPlanList}" var="p">
+            
+            <apex:pageBlockSection title="{!p.Name}" columns="1" >
+        <apex:dataTable value="{!TaskPlanList[p]}" var="t" rendered="{!OR((completedKeys == ''), NOT(CONTAINS(completedKeys, p.Id)))}" id="taskTable" styleClass="taskTable" cellpadding="4" rowClasses="row1, row2" width="100%">
+            
+            <apex:column headerValue="Subject">
+                <apex:outputLink value="/{!t.Id}" target="_blank">{!t.Subject}</apex:outputLink>
+            </apex:column> 
+            <apex:column headerValue="Status" value="{!t.Status}" />
+            <apex:column headerValue="Due Date" value="{!t.ActivityDate}" />
+            <apex:column headerValue="Assigned To" value="{!t.Owner.Name}" />
+            <apex:column headerValue="Comments" value="{!t.Description}" />
+            <apex:column >
+                <apex:actionstatus id="status">
+                    <apex:facet name="start">
+                        <img src="/img/loading.gif" title="Please Wait..." />
+                    </apex:facet>
+                    <apex:facet name="stop">
+                        <img src="/img/loading.gif" style="visibility:hidden;" title="Please Wait..." />
+                    </apex:facet>
+                </apex:actionstatus>
+                <apex:commandButton value="Complete" status="status" action="{!completeTask}" rendered="{!t.Status != 'Completed'}" reRender="tasksForm" >
+                    <apex:param value="{!t.Id}" assignTo="{!completeTaskId}" name="completedTaskParam" />
+                </apex:commandButton>
+                <apex:outputPanel layout="none" rendered="{!t.Status == 'Completed'}">
+                    <input type="checkbox" id="chkComplete{!t.Id}" checked="true" disabled="true" />
+                </apex:outputPanel>
+            </apex:column>
+            
+        </apex:dataTable>
+                
+                            
+            
+            </apex:pageBlockSection>
+        
+        </apex:repeat>
+        </apex:pageBlock>
+    </apex:form>
+    
+</apex:page>

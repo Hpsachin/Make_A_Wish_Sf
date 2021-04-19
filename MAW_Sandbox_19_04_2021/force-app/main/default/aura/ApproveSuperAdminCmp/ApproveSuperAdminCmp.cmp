@@ -1,0 +1,104 @@
+<aura:component description="ApproveSuperAdminCmp" implements="force:appHostable,force:hasRecordId,force:lightningQuickActionWithoutHeader,forceCommunity:availableForAllPageTypes,flexipage:availableForAllPageTypes" controller="ApproveSuperAdmin_Handler" access="global">
+    
+    <aura:attribute name="formDetails" type="List"/>
+    <aura:attribute name="relationshipToChild" type="String"/>
+    <aura:attribute name="firstName" type="String"/>
+    <aura:attribute name="lastName" type="String"/>
+    <aura:attribute name="specificationRelatedToMedicalCondition" type="String"/>
+    <aura:attribute name="fitForWish" type="String"/>
+    <aura:attribute name="specificationRelatedToWish" type="String"/>
+    <aura:attribute name="familyDetails" type="List"/>
+    <aura:attribute name="group" type="List"/>
+    <aura:attribute name="isUpdated" type="Boolean" default="false"/>
+    <aura:attribute name="status" type="String" default=""/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <div class="slds-theme_default">
+        <div class="slds-align_absolute-center ">
+            <aura:if isTrue="{!v.isUpdated}">
+                <p style="color:dodgerblue;font-size:2.5vh;">Make A Wish Approval Details - <span style="{!v.status == 'Approved'?'color:green;font-size:2.5vh;':'color:red;font-size:2.5vh;'}">{!v.status}</span></p>
+                <aura:set attribute="else">
+                    <p style="color:dodgerblue;font-size:2.5vh;">Make A Wish Approval Details</p>
+                </aura:set>   
+            </aura:if>
+        </div>
+        
+        <lightning:accordion allowMultipleSectionsOpen="true" onsectiontoggle="{! c.handleSectionToggle }" activeSectionName="Medical Eligibility">
+            <aura:if isTrue="{!not(empty(v.formDetails))}">
+                <aura:iteration items="{!v.group}" var="grp">
+                    <lightning:accordionSection name="{!grp=='Childs Condition'?'Medical Eligibility':grp}" label="{!grp=='Childs Condition'?'Medical Eligibility':grp}">
+                        <div class="slds-grid slds-wrap">
+                            <aura:if isTrue="{!grp == 'Your Details'}">
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                    <lightning:input name="Relationship_to_Child" value="{!v.relationshipToChild}" label="Relationship to Child?" disabled = "true" />
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                    <lightning:input name="FirstName" value="{!v.firstName}" label="First Name" disabled = "true" />
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                    <lightning:input name="LastName" value="{!v.lastName}" label="Last Name" disabled = "true" />
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!grp == 'Childs Condition'}">
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                    <lightning:input name="Any_specification_related_to_Medical_condition" required="true" aura:id="field" value="{!v.specificationRelatedToMedicalCondition}" oncommit="{!c.handleInput}" label="Medical condition specification?" disabled="{!v.isUpdated}"/>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                    <lightning:select name="Fit_for_Wish" label="Fit for Wish" required="true" aura:id="field" value="{!v.fitForWish}"  disabled="{!v.isUpdated}">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </lightning:select>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                    <lightning:input name="Any_specification_related_to_Wish" required="true" aura:id="field"  value="{!v.specificationRelatedToWish}" oncommit="{!c.handleInput}" label="Wish specification?" disabled="{!v.isUpdated}"/>
+                                </div>
+                            </aura:if>
+                            <aura:iteration items="{!v.formDetails}" var="relationObj">
+                                <aura:if isTrue="{!and(grp == relationObj.groups,not(empty(relationObj.innerfield)))}">
+                                    <aura:iteration items="{!relationObj.innerfield}" var="innerfieldObj">
+                                        <aura:if isTrue="{!not(empty(innerfieldObj.value))}">
+                                            <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                                <lightning:input name="{!innerfieldObj.name}"  value="{!innerfieldObj.value}" label="{!innerfieldObj.label}" disabled = "true" />
+                                            </div>
+                                        </aura:if>
+                                    </aura:iteration>
+                                </aura:if>
+                            </aura:iteration>
+                        </div>
+                    </lightning:accordionSection>
+                    <aura:if isTrue="{!and(grp == 'Child Details', not(empty(v.familyDetails)))}">
+                        <lightning:accordionSection name="Family Details" label="Family Details">
+                            <div class="slds-grid slds-wrap">
+                                <aura:iteration items="{!v.familyDetails}" var="familyDetailsObj">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                        <lightning:input name="FirstName"  value="{!familyDetailsObj.firstName}" label="Family Members First Name" disabled = "true" />
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                        <lightning:input name="LastName"  value="{!familyDetailsObj.lastName}" label="Family Members Last Name" disabled = "true" />
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                        <lightning:input name="Gender"  value="{!familyDetailsObj.gender}" label="Family Members Gender" disabled = "true" />
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                        <lightning:input name="DOB"  value="{!familyDetailsObj.dob}" label="Family Members Date of Birth" disabled = "true" />
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-left_medium">
+                                        <lightning:input name="Relation_to_Child"  value="{!familyDetailsObj.relation}" label="Relation to Child?" disabled = "true" />
+                                    </div>
+                                </aura:iteration>
+                            </div>
+                        </lightning:accordionSection>
+                    </aura:if>
+                </aura:iteration>
+            </aura:if>
+        </lightning:accordion>
+        
+        <aura:if isTrue="{!!v.isUpdated}">
+            <div class="slds-align_absolute-center slds-p-vertical_medium">
+                <lightning:button label="Complete" title="Neutral action" value="Rejected" onclick="{!c.handleClick}"/>
+                <!--lightning:button variant="brand" label="Complete" value="Approved" title="Brand action" onclick="{!c.handleClick}" /-->
+            </div>
+        </aura:if>
+    </div>
+</aura:component>

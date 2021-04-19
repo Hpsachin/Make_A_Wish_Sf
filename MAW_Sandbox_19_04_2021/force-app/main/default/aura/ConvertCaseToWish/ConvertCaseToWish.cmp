@@ -1,0 +1,125 @@
+<aura:component
+  implements="force:hasRecordId,force:lightningQuickActionWithoutHeader"
+  controller="WishClass"
+>
+  <!-- Attributes -->
+  <aura:attribute name="renderModalDialogue" type="boolean" default="false" />
+  <aura:attribute name="renderSpinner" type="boolean" default="false" />
+  <aura:attribute name="renderConfirmation" type="boolean" default="false" />
+  <aura:attribute name="renderError" type="boolean" default="false" />
+  <aura:attribute name="partiallyConfirm" type="boolean" default="true" />
+  <aura:attribute name="recordId" type="Id" />
+  <aura:attribute name="wishRecordId" type="Id" />
+  <aura:attribute name="errorMessage" type="string" />
+
+  <!-- Body of the QuickAction -->
+  <div class="slds-modal__content slds-p-around_medium">
+    <div class="slds-m-bottom_x-large">
+      <div class="slds-media">
+        <div class="slds-media__figure">
+          <span class="slds-avatar slds-avatar_large">
+            <lightning:icon iconName="utility:campaign" size="small" />
+          </span>
+        </div>
+        <div class="slds-media__body">
+          <p>
+            {!$Label.c.ConvertToWish_Label1}
+          </p>
+        </div>
+      </div>
+    </div>
+    <lightning:button
+      class="slds-button_brand"
+      onclick="{!c.startProcess}"
+      label="Start"
+    />
+  </div>
+
+  <!-- Modal Dialogue -->
+  <aura:if isTrue="{!v.renderModalDialogue}">
+    <!--###### MODAL BOX Start######-->
+    <section role="dialog" class="slds-modal slds-fade-in-open">
+      <div class="slds-modal__container">
+        <!-- ###### MODAL BOX HEADER Start ######-->
+        <header class="slds-modal__header">
+          <lightning:buttonIcon
+            iconName="utility:close"
+            onclick="{! c.closeModal }"
+            alternativeText="close"
+            variant="bare-inverse"
+            class="slds-modal__close"
+          />
+          <h2
+            id="modal-heading-01"
+            class="slds-text-heading_medium slds-hyphenate"
+          >
+            Convert to Wish
+          </h2>
+        </header>
+
+        <aura:if isTrue="{!and(not(v.renderConfirmation),not(v.renderError))}">
+          <div class="slds-modal__content slds-p-around_medium">
+            <!--###### MODAL BOX BODY Part Start######-->
+            <div class="slds-media">
+              <div class="slds-media__figure">
+                <span class="slds-avatar slds-avatar_medium">
+                  <lightning:icon
+                    iconName="utility:touch_action"
+                    size="large"
+                  />
+                </span>
+              </div>
+              <div class="slds-media__body">
+                <div class="slds-text-heading_medium">
+                  {!$Label.c.ConvertToWish_Label2}
+                </div>
+              </div>
+            </div>
+          </div>
+        </aura:if>
+
+        <aura:if isTrue="{!v.renderConfirmation}">
+          <c:ConvertCaseToWIshConfirmation
+            isError="false"
+            wishRecordId="{!v.wishRecordId}"
+          />
+        </aura:if>
+
+        <aura:if isTrue="{!v.renderError}">
+          <c:ConvertCaseToWIshConfirmation
+            isError="true"
+            errorMessage="{!v.errorMessage}"
+          />
+        </aura:if>
+
+        <!--###### MODAL BOX FOOTER Part Start ######-->
+        <footer class="slds-modal__footer">
+          <aura:if
+            isTrue="{!and(not(v.renderConfirmation),not(v.renderError))}"
+          >
+            <lightning:button
+              class="slds-button_brand"
+              onclick="{!c.yesResponse}"
+              label="Confirm"
+            /> 
+          </aura:if>
+          <lightning:button
+            class="slds-button_neutral"
+            onclick="{!c.closeModal}"
+            label="Close"
+          />
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+    <!--###### MODAL BOX Part END Here ######-->
+  </aura:if>
+
+  <!--###### Load Spinner when waiting for server side action to complete ######-->
+  <aura:if isTrue="{!v.renderSpinner}">
+    <!--###### MODAL BOX Start######-->
+    <section role="dialog" class="slds-modal slds-fade-in-open">
+      <lightning:spinner alternativeText="Loading" size="medium" />
+    </section>
+  </aura:if>
+</aura:component>

@@ -1,0 +1,620 @@
+<apex:page controller="volunteerApplicationController" showHeader="false" standardStylesheets="false" applyHTMLTag="false" language="en-AU">
+
+    <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <!-- scrolling viewport
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            -->
+            <!-- no scrolling viewport -->
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+            <title>Make A Wish - Volunteer Application</title>
+
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.validate.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/additional-methods.js')}" />
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jqueryui.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/css/jqueryuicss.css')}" />
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/bootstrap/js/bootstrap.min.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/bootstrap/css/bootstrap.min.css')}" />
+
+
+            <apex:variable var="labelCol" value="col-xs-12 col-sm-3" />
+            <apex:variable var="labelOffset" value="col-sm-offset-3" />
+            <apex:variable var="inputCol" value="col-xs-12 col-sm-9" />
+            <apex:variable var="errorCol" value="col-xs-12 {!labelOffset} col-sm-9" />
+
+            <script>
+
+            $(function() {
+                init();
+            });
+
+              function loading(){
+
+                $('.loadingImage').css('display', 'inline');
+                $('.submitBtn').prop('disabled', true);
+
+            }
+
+            function loadingReturn(){
+
+                $('.loadingImage').css('display', 'none');
+                $('.submitBtn').prop('disabled', false);
+
+                if($('#err').doesExist()) {
+                    $('html, body').animate({
+                        scrollTop: $('#err').offset().top
+                    }, 500);
+                }
+
+                return false;
+            }
+
+            function init() {
+                loadingReturn();
+                setValidation();
+            }
+
+            function setValidation() {
+
+                $('.datepickerDOB').datepicker({
+                    yearRange: '-99:+0',
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: 'dd/mm/yy'
+                });
+                $('.datepickerDOB').attr('readonly', true);
+
+                $('[id$=volunteerApplicationForm]').validate({
+                    debug: true,
+                    submitHandler: function(form) {
+                        loading();
+                        submitForm();
+                    },
+                    errorPlacement: function(error, element) {
+                        if (element.attr('type') == 'radio') {
+                            error.insertAfter(element.closest('table'));
+                        } else if (element.attr('type') == 'select') {
+                            error.insertAfter(element.closest('table'));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    ignore: ':hidden:not(select[multiple]), .multiSelectPicklistTable *'
+                });
+
+                $('table.requiredRadios input[type="radio"]').addClass('required');
+
+                $.validator.addMethod('max3', $.validator.methods.maxlength, 'Maximum of 3 answers');
+                $.validator.addMethod('max255', $.validator.methods.maxlength, 'Maximum of 255 characters');
+
+                $.validator.addClassRules({
+                    max3: {
+                        max3: 3,
+                    },
+                    max255: {
+                        max255: 255,
+                    },
+                });
+
+                jQuery.validator.messages.required = 'This value is required.';
+            }
+
+            jQuery.fn.doesExist = function(){
+                return $(this).length > 0;
+            };
+
+            </script>
+
+             <style>
+
+
+                div.form-group > label.control-label + div > span {
+                    padding-top: 7px;
+                    display: inline-block;
+                }
+
+                html, body { background-color:#0069ba; font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif; }
+
+                h1 { color:#0069ba; margin: 30px 0px; }
+                h2, h3 { color:#333; }
+
+                #formContainer { background-color:#fff; padding: 2% 5% 7%; margin-bottom:5%; }
+
+                .btn {
+                margin:4px 10px 0px 0px;
+                }
+
+                .btn-row { text-align:center; margin-bottom:10px; }
+
+                span.required, label.error { color: red; }
+
+                .loadingDiv { text-align: center; }
+                .loadingImage { height:32px; }
+
+                .dateFormat { display:none; }
+
+                div.bluePanel { background-color:#0069ba; color:#fff; padding:3%; }
+                p.leadParagraph { font-size:1.1em; font-weight:600;}
+
+                .col-sm-9 .form-control { width:90%; }
+
+                 select[size] { height:34px; }
+                  select[multiple] { height:100%; width:100%; }
+                 img.form-control { border: none; box-shadow: none; height:24px; }
+
+                 input[checkbox] { box-shadow:none; }
+
+                 .help-block { font-weight: normal; font-size: 0.8em; }
+
+                 .multiSelectPicklistTable {
+                 	width: 90%;
+                 }
+
+                 .multiSelectPicklistTable img.form-control {
+                     padding: 0;
+                     margin: 0;
+                     height: 17px;
+                     width: 17px;
+                 }
+
+                 .multiSelectPicklistTable select.form-control {
+                     width: 100% !important;
+                     max-width: none;
+                 }
+
+                 .multiSelectPicklistTable td {
+                 	width: 49%;
+                 }
+
+                 .multiSelectPicklistTable td.multiSelectPicklistCell {
+                 	width: auto;
+                 }
+            </style>
+
+            <body>
+
+                <div class="container">
+
+                    <img src="{!URLFOR($Resource.Resources, '/resources/img/logo.jpg')}" alt="Make A Wish Australia" />
+
+                    <div id="formContainer" class="form-horizontal clearfix">
+
+                        <h1>
+                            Volunteer with Make-A-Wish&reg; Australia
+                        </h1>
+
+                        <div class="clearfix" style="text-align:center;">
+                           <img src="{!URLFOR($Resource.Resources, '/resources/img/Volunteer.jpg')}" alt="Make A Wish Australia" style="margin:auto;max-width:960px;width:100%;" />
+                        </div>
+
+                        <h2>
+                            Become a Volunteer
+                        </h2>
+
+                        <p>
+                            To be eligible to become a Make-A-Wish Australia volunteer, you must be 18 years or older.
+                        </p>
+                        <p>
+                            All volunteers are required to pass a National Police Check and, in some states, a Working with Children Check. Each volunteer branch will conduct an interview and undertake reference checks as part of the recruitment process.
+                        </p>
+
+                        <h3>
+                            Expression of interest
+                        </h3>
+
+                        <p>
+                            If you are interested in joining Make-A-Wish as a volunteer, please fill in the form below and a member of our team will be in touch with you in the next 3 - 7 days
+                        </p>
+                        <p>
+                            Alternatively you can call the Volunteer Services Team on 1800 032 260.
+                        </p>
+
+                        <h2>Join one of our volunteer branches</h2>
+
+                        <p>
+                            Make-A-Wish Australia has 57 volunteer branches across the country. Each branch assists with the granting of wishes, organise fundraising activities and promote the work of Make-A-Wish in their local community.
+                        </p>
+
+                        <h1>
+                            Branch Volunteer Expression of Interest Form
+                        </h1>
+
+                        <apex:form id="volunteerApplicationForm" >
+
+                            <h2>
+                                About You
+                            </h2>
+
+                        <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                Title
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputField value="{!f.Volunteer_Title__c}" styleClass="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                First Name <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputField value="{!f.Volunteer_First_Name__c}" styleClass="required form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                Surname <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputText value="{!f.Volunteer_Surname__c}" styleClass="required form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                Preferred Name <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputField value="{!f.Volunteer_Preferred_Name__c}" styleClass="required form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                Gender
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputField value="{!f.Volunteer_Gender__c}" styleClass="form-control" />
+                            </div>
+                        </div>
+
+                            <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                Date of Birth <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputText value=" {!f.Volunteer_DOB__c}" styleClass="required form-control datepickerDOB" />
+                            </div>
+                        </div>
+
+                         <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                Address <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputField value="{!f.Volunteer_Address__c}" styleClass="required form-control" />
+                            </div>
+                        </div>
+
+                             <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                Suburb <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputField value="{!f.Volunteer_Suburb__c}" styleClass="required form-control" />
+                            </div>
+                        </div>
+
+                             <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                State <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputField value="{!f.Volunteer_State__c}" styleClass="required form-control" />
+                            </div>
+                        </div>
+
+                             <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                Postcode <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputField value="{!f.Volunteer_Postcode__c}" styleClass="required form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label {!labelCol}">
+                                Email Address <span class="required">*</span>
+                            </label>
+                            <div class="{!inputCol}">
+                                <apex:inputField value="{!f.Volunteer_Email__c}" styleClass="required email form-control" />
+                            </div>
+                        </div>
+
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Home Telephone Number
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!f.Volunteer_Home_Phone__c}" styleClass="form-control" />
+                                </div>
+                            </div>
+
+                             <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Mobile Telephone Number <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Volunteer_Mobile_Phone__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+
+                            <!-- employment -->
+                            <h3>
+                                Your Employment
+                            </h3>
+                             <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Employment Status
+                                </label>
+                                <div class="{!inputCol}">
+                                  <apex:inputField value="{!f.Volunteer_Employment_Status__c }" styleClass="form-control" />
+                                </div>
+                            </div>
+
+                             <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Current or most recent Occupation
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Volunteer_Occupation__c }" styleClass="form-control" />
+                                </div>
+                            </div>
+
+                             <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Current or most recent employer
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Volunteer_Employer__c}" styleClass="form-control" />
+                                </div>
+                            </div>
+
+                             <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                   Current or most recent position or title
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Volunteer_Position_Title__c }" styleClass="form-control" />
+                                </div>
+                            </div>
+
+                            <h3>
+                                More About You
+                            </h3>
+
+                             <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Do you speak a language other than English?
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Speak_a_language_other_than_English__c}" styleClass="form-control">
+                                        <apex:actionSupport event="onchange" reRender="otherLanguagePanel" />
+                                    </apex:inputField>
+                                </div>
+                            </div>
+
+                            <apex:outputPanel id="otherLanguagePanel">
+                                <apex:outputPanel rendered="{!f.Speak_a_language_other_than_English__c}">
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Please select language
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!f.Languages__c}" styleClass="form-control" />
+                                        </div>
+                                    </div>
+
+                                     <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            If other please specifiy
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!f.Language_Other__c}" styleClass="form-control" />
+                                        </div>
+                                    </div>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Do you have a current driver's licence?
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Do_you_have_a_current_drivers_license__c}" styleClass="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Do you have a personal car available for use?
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Do_you_have_a_personal_car_available__c}" styleClass="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    How did you hear about us?
+                                </label>
+                                <div class="{!inputCol}">
+                                   <apex:inputField value="{!f.How_did_you_hear_about_us__c}" styleClass="form-control">
+                                        <apex:actionSupport event="onchange" reRender="hearAboutUsPanel" />
+                                    </apex:inputField>
+                                </div>
+                            </div>
+
+                            <apex:outputPanel id="hearAboutUsPanel">
+                               <apex:outputPanel rendered="{!f.How_did_you_hear_about_us__c=='Other'}">
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                           Other (Please specify)
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:inputField value="{!f.How_did_you_hear_about_us_Other__c}" styleClass="form-control" />
+                                        </div>
+                                    </div>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+
+                           <h3>
+                               Volunteering
+                            </h3>
+
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    What do you want to achieve from volunteering with us?
+                                    <span id="helpBlock" class="help-block">Please select a maximum of 3 responses</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Want_to_achieve_from_volunteering__c}" id="want_to_achieve" styleClass="form-control max3 want_to_achieve" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Please list education, training and other skills that you consider relevant to volunteering for Make-A-Wish
+                                    <span id="helpBlock" class="help-block">Please select a maximum of 3 responses</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Education_training_and_other_skills__c}" id="education_training_skills" styleClass="form-control max3 education_training_skills" />
+                                </div>
+                            </div>
+
+                             <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    If not listed, please specify
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Education_training_skills_other__c}" styleClass="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Why do you want to volunteer with us? And what do you feel you could contribute?
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Why_do_you_want_to_volunteer__c}" styleClass="form-control max255" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Tick here to be excluded from future Make-A-Wish communications (except those required by law or to action and confirm your requests).
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!f.Email_Opt_Out__c}" styleClass="form-control" />
+                                </div>
+                            </div>
+
+                            <!--
+
+                            <apex:actionRegion >
+
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Volunteer preference <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!l.Volunteer_Preference__c}" styleClass="form-control requried">
+                                        <apex:actionSupport event="onchange" reRender="preferencePanel" status="preferenceChange" />
+                                    </apex:inputField>
+                                    <span id="helpBlock" class="help-block">
+                                        <apex:actionStatus id="preferenceChange">
+                                            <apex:facet name="start">
+                                                <img src="{!URLFOR($Resource.Resources, '/resources/img/loader.gif')}" style="height:20px;" alt="loading" />
+                                            </apex:facet>
+                                        </apex:actionStatus>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <apex:outputPanel id="preferencePanel">
+                                <apex:outputPanel rendered="{!l.Volunteer_Preference__c=='Branch'}">
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Preferred Branch
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:selectList value="{!l.Company}" styleClass="form-control" multiselect="false" size="1">
+                                                <apex:selectOptions value="{!Branches}" />
+                                            </apex:selectList>
+                                        </div>
+                                    </div>
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!l.Volunteer_Preference__c=='Office'}">
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Preferred Office
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:selectList value="{!l.Company}" styleClass="form-control" multiselect="false" size="1">
+                                                <apex:selectOptions value="{!Offices}" />
+                                            </apex:selectList>
+                                        </div>
+                                    </div>
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!l.Volunteer_Preference__c=='Retail'}">
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Store Locations
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:selectList value="{!l.Company}" styleClass="form-control" multiselect="false" size="1">
+                                                <apex:selectOptions value="{!Stores}" />
+                                            </apex:selectList>
+                                        </div>
+                                    </div>
+                                </apex:outputPanel>
+                                <apex:outputPanel rendered="{!l.Volunteer_Preference__c=='Student'}">
+                                    <div class="form-group">
+                                        <label class="control-label {!labelCol}">
+                                            Location
+                                        </label>
+                                        <div class="{!inputCol}">
+                                            <apex:selectList value="{!l.Company}" styleClass="form-control" multiselect="false" size="1">
+                                                <apex:selectOption itemLabel="Richmond, VIC" itemValue="Melbourne Office" />
+                                            </apex:selectList>
+                                        </div>
+                                    </div>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+
+                            </apex:actionRegion>
+                                -->
+
+                            <apex:outputPanel id="submitError">
+                                <p style="display:none;">
+                                    <apex:pageMessages ></apex:pageMessages>
+                                </p>
+                            </apex:outputPanel>
+
+
+                                <div class="form-group" style="margin-top:20px;">
+                                    <label class="control-label {!labelCol}">
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <input class="btn btn-primary btn-lg submitBtn" type="submit" value="Submit Enquiry" />
+                                        <apex:actionFunction name="submitForm" action="{!submitVolunteerLead}" onbeforedomupdate="loading()" oncomplete="loadingReturn();" reRender="submitError" />
+                                        <img class="loadingImage" style="display:none;" src="{!URLFOR($Resource.Resources, '/resources/img/loader.gif')}" />
+                                    </div>
+                                </div>
+
+                        </apex:form>
+
+                    </div>
+
+                </div>
+            </body>
+        </head>
+    </html>
+</apex:page>

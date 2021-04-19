@@ -1,0 +1,521 @@
+<apex:page controller="volunteerApplicationStageController" showHeader="false" standardStylesheets="false" applyHTMLTag="false" language="en-AU" action="{!checkStatus}">
+    
+    <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <!-- scrolling viewport
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            -->
+            <!-- no scrolling viewport -->
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+            
+            <title>Make A Wish - Volunteer Application</title>
+            
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.validate.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/additional-methods.js')}" />
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jqueryui.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/css/jqueryuicss.css')}" />
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/bootstrap/js/bootstrap.min.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/bootstrap/css/bootstrap.min.css')}" />
+        
+            
+            <apex:variable var="labelCol" value="col-xs-12 col-sm-3" />
+            <apex:variable var="labelOffset" value="col-sm-offset-3" />
+            <apex:variable var="inputCol" value="col-xs-12 col-sm-9" />
+            <apex:variable var="errorCol" value="col-xs-12 {!labelOffset} col-sm-9" />
+            
+            <script>
+           
+            $(function() {
+                init();
+            });
+            
+              function loading(){
+            
+                $('.loadingImage').css('display', 'inline');
+                $('.submitBtn').prop('disabled', true);
+                
+            }
+        
+            function loadingReturn(){
+            
+                $('.loadingImage').css('display', 'none');
+                $('.submitBtn').prop('disabled', false);
+                
+                if($("#err").doesExist()) {
+                    $('html, body').animate({
+                        scrollTop: $("#err").offset().top
+                    }, 500);
+                }
+                
+                return false;
+            }
+            
+            function init() {
+                loadingReturn();
+                setValidation();
+                }
+            
+            function setValidation() {
+                
+                $(".datepickerDOB").datepicker({
+                    yearRange: "-99:+0",
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: 'dd/mm/yy'
+                });
+                $(".datepickerDOB").attr('readonly', true);
+                
+                $(".datepicker").datepicker({
+                    yearRange: "-1:+1",
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: 'dd/mm/yy'
+                });
+                $(".datepicker").attr('readonly', true);
+                
+                $(".datepickerFuture").datepicker({
+                    yearRange: "0:+5",
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: 'dd/mm/yy'
+                });
+                $(".datepickerFuture").attr('readonly', true);
+                
+                $(".datepickConfirm").datepicker({dateFormat: 'dd/mm/yy'}).datepicker("setDate", new Date());
+        
+                $("[id$=volunteerApplicationForm]").validate({
+                     debug: true,
+                     submitHandler: function(form) {
+                        loading();
+                        submitForm();
+                      },
+                     errorPlacement: function(error, element) {
+                        if (element.attr("type") == "radio") {
+                          error.insertAfter(element.closest("table"));
+                        } else if (element.attr("type") == "select") {
+                            error.insertAfter(element.closest("table"));
+                        } else {
+                          error.insertAfter(element);
+                        }
+                      }
+                });  
+                
+                if($("table.requiredRadios input[type=radio]").doesExist()) {
+                    $("table.typeList input[type=radio]").rules("add",{
+                        required: true
+                    });  
+                }
+        
+                
+                if($("textarea.max255").doesExist()) {
+                    $("textarea.max255").rules("add",{
+                        maxlength: 255,
+                         messages : {
+                             maxlength: "Maximum of 255 characters"
+                             }
+                    });
+                }
+                
+                if($("select.max3").doesExist()) {
+                    $("select.max3").attr('name',$("select.max3").attr('id'));
+                    $("select.max3").rules("add",{
+                        maxlength: 3,
+                         messages : {
+                             maxlength: "Maximum of 3 answers"
+                             }
+                    });
+                }
+                
+                jQuery.validator.addClassRules("fillone", {
+                    require_from_group: [1,".fillone"]
+                });
+        
+                jQuery.validator.messages.required = "this value is required.";
+            }
+            
+            jQuery.fn.doesExist = function(){
+                return $(this).length > 0;
+            };
+            
+            </script>
+            
+             <style>
+                
+                
+                div.form-group > label.control-label + div > span {
+                    padding-top: 7px;
+                    display: inline-block;
+                }
+                
+                html, body { background-color:#0069ba; font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif; }
+                
+                h1 { color:#0069ba; margin: 30px 0px; }
+                h2 { color:#fff; background-color:#0069ba; padding:8px; font-size:18px; }
+                h3 { color:#333; }
+                 
+                
+                #formContainer { background-color:#fff; padding: 2% 5% 7%; margin-bottom:5%; }
+                
+                .btn {
+                margin:4px 10px 0px 0px;
+                }
+                
+                .btn-row { text-align:center; margin-bottom:10px; }
+                
+                span.required, label.error { color: red; }
+                
+                .loadingDiv { text-align: center; }
+                .loadingImage { height:32px; }
+                
+                .dateFormat { display:none; }
+                
+                div.bluePanel { background-color:#0069ba; color:#fff; padding:3%; }
+                p.leadParagraph { font-size:1.1em; font-weight:600;}
+                
+                .col-sm-9 .form-control { width:90%; }
+                 
+                 select[size] { height:34px; }
+                  select[multiple] { height:100%; width:100%; }
+                 img.form-control { border: none; box-shadow: none; height:24px; }
+
+                 input[checkbox] { box-shadow:none; }
+            </style>
+            
+            <body>
+                
+                <div class="container">
+                    
+                    <!-- application stage -->
+                    
+                    <img src="{!URLFOR($Resource.Resources, '/resources/img/logo.jpg')}" alt="Make A Wish Australia" />
+                    
+                    <div id="formContainer" class="form-horizontal clearfix">
+        
+                         <h1>
+                            Branch Volunteer Application Form
+                        </h1>   
+                        
+                        <apex:outputPanel rendered="{!closeForm}">
+                            <p>
+                                Your application form has already been submitted.
+                            </p>
+                        </apex:outputPanel>
+                        
+                        <apex:outputPanel rendered="{!!closeForm}">
+                        
+        <h3>
+            Please review all of the required items below before commencing the application form.
+        </h3>
+        
+        <p>
+            To complete this form you will need;
+        </p>
+        
+        <ol>
+            <li>Ensure you have read and understood the Code of Conduct</li>
+            <li>Provide 100 points of Certified ID</li>
+            <li>Provide a passport style photo of yourself</li>
+            <li><i>Atleast</i> applied for a Working With Childrens check in your state.</li>
+        </ol>
+                        
+                        <apex:form id="volunteerApplicationForm" >
+                            
+                            <h2>
+                                PERSONAL DETAILS
+                            </h2>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Branch
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:outputText value="{!eoi.Account__r.Name}" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Title <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Title__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Family name <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Surname__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Given name <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_First_Name__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Preferred name (for ID badge)
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Preferred_Name__c}" styleClass="form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Email <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Email__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Home phone
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Home_Phone__c}" styleClass="form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Mobile phone <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Mobile_Phone__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Street Address <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Address__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    City/Town/Suburb <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Suburb__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    State <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_State__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Postcode <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Postcode__c}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Date of birth <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value=" {!eoi.Volunteer_DOB__c}" styleClass="required form-control datepickerDOB" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Gender
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_Gender__c}" styleClass="form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    T-Shirt size <span class="required">*</span><br/>
+                                    <a href="/resource/VolunteerDocs/VolunteerDocs/Volunteer_Polo_Shirts_Size_Chart.pdf" target="_blank">size chart</a>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputField value="{!eoi.Volunteer_T_Shirt_Size__c}" styleClass="form-control required" />
+                                </div>
+                            </div>
+
+                              <h2>
+                                REFEREES
+                            </h2>
+                            
+                            <p>
+                                Please supply the names of two referees who are non-relatives. If you are currently employed please supply the name of one of your work related referee. Personal referees must have a known you for over two years. The referees will be contacted by the Branch President or Volunteer Care Co-ordinator.
+                            </p>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Referee's Name and Relationship <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!refOne.refName}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Contact Number/s (enter as many as you like) <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!refOne.refNumber}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Email Address <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!refOne.refRelationship}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Referee's Name and Relationship <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!refTwo.refName}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Contact Number/s (enter as many as you like) <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!refTwo.refNumber}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Email Address <span class="required">*</span>
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!refTwo.refRelationship}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <h2>
+                                WORKING WITH CHILDREN REQUIREMENTS BY STATE
+                            </h2>
+                            
+                            <p>
+                                To participate in volunteering, all Make-A-Wish volunteers must have a vail Working With Children (WWC) certification for their state. If you do not have a current WWC check please apply for the relevant check in your state. Once approved, please provide the details in your application.
+                            </p>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    I acknowledge I have applied for a WWC check.
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputCheckbox value="{!wwcc}" styleClass="required form-control" />
+                                </div>
+                            </div>
+                            
+                            <p>
+                                If you have a current WWC check, please include the number and expiry date below:  
+                            </p>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Number
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!wwccNumber}" styleClass="form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Expiry date
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!wwccExpiry}" styleClass="datepickerFuture form-control" />
+                                </div>
+                            </div>
+                            
+                            <h2>
+                                CODE OF CONDUCT
+                            </h2>
+                            
+                            <p>
+                                I, <apex:inputText value="{!ccName}" styleClass="required" /> <br />
+                                declare that I have read, understand and will comply with the code of conduct.<br />
+                            </p>
+                           
+                            <div class="form-group">
+                                <label class="control-label {!labelCol}">
+                                    Date
+                                </label>
+                                <div class="{!inputCol}">
+                                    <apex:inputText value="{!ccDate}" styleClass="datepickConfirm required" />
+                                </div>
+                            </div>
+                            
+                             <apex:outputPanel id="submitError">
+                             <apex:pageMessages ></apex:pageMessages>
+                            </apex:outputPanel>
+                            
+                            <div class="form-group" style="margin-top:20px;">
+                                <p>
+                                    Submit &amp; Continue to the next step where you can provide your required documents.
+                                </p>
+                            </div>
+                                
+                                <div class="form-group" style="margin-top:20px;">
+                                    <label class="control-label {!labelCol}">
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <input class="btn btn-primary btn-lg submitBtn" type="submit" value="Submit & Continue" />
+                                        <apex:actionFunction name="submitForm" action="{!submitVolunteerApp}" onbeforedomupdate="loading()" oncomplete="loadingReturn();" reRender="submitError" />
+                                        <img class="loadingImage" style="display:none;" src="{!URLFOR($Resource.Resources, '/resources/img/loader.gif')}" />
+                                    </div>
+                                </div>
+                             
+                            
+                        </apex:form>
+        
+</apex:outputPanel>
+                        
+    </div>
+                    
+                </div>
+                
+            </body>
+            
+        </head>
+        
+    </html>
+    
+
+</apex:page>

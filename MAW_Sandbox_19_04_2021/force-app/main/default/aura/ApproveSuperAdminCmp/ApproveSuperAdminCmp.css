@@ -1,0 +1,18 @@
+.THIS {
+}
+.THIS .slds-button+.slds-button{
+    background-color: rgb(255, 77, 148);
+}
+.THIS .slds-button.slds-button_neutral{
+    background-color: rgb(255, 77, 148);
+    min-width: 200px;
+    min-height: 40px;
+    border-radius: 40px;
+    color: white;
+}
+.THIS .slds-accordion__summary-heading{
+    color: darkBlue;
+}
+.THIS .slds-accordion__summary-heading > button > lightning-primitive-icon { 
+    color: darkBlue;
+}

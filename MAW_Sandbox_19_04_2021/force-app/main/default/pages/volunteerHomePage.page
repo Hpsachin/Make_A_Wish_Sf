@@ -1,0 +1,37 @@
+<apex:page showHeader="false" standardStylesheets="false" applyHTMLTag="false" language="en-AU">
+    
+     <style>
+
+                
+                html, body { font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif; }
+                
+                h1 { color:#0069ba; margin: 30px 0px; }
+                h2, h3 { color:#333; }
+         
+    </style>
+    
+    <div style="text-align:center;margin:20px;max-width:1170px;width:100%;">
+
+        <img src="{!URLFOR($Resource.Resources, '/resources/img/header.jpg')}" alt="Make A Wish Australia" style="max-width:1170px;width:100%;"  />
+    
+        <div style="text-align:left;">
+            <h1>
+                Welcome to the Make-A-Wish&reg; Australia Volunteers Community
+            </h1>
+            
+
+            <apex:outputPanel >
+                
+                <p>
+                    Make-A-Wish&reg; Australia welcomes volunteers from all backgrounds, recognising the varied skills and abilities they bring with them.
+                </p>
+                <p>
+                    By volunteering you can gain new skills, make new friends and have fun, all while enjoying the sense of reward that comes from making a difference and knowing you're assisting the organisation in reaching our mission - to grant the wishes of children with life-threatening medical conditions to enrich the human experience with hope, strength and joy.
+                </p>
+                
+            </apex:outputPanel>
+            
+        </div>
+    </div>
+    
+</apex:page>

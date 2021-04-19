@@ -1,0 +1,134 @@
+.THIS {
+}
+
+.THIS .slds-box {
+    padding: 0rem;
+}
+
+.THIS .required{
+    color:red;
+}
+
+
+.THIS .ql-align-right {
+    text-align: right;
+}
+
+.THIS .ql-align-center {
+    text-align: center;
+}
+
+.THIS .ql-font-serif {
+    font-family: serif;
+}
+
+.THIS .inputText{
+    border-radius: 4px;
+    height: auto;
+}
+
+
+
+.THIS .inputfield .slds-input{
+    border: 0px !important;
+    box-shadow: none;
+    height: 33px;
+    width:240px;
+}
+
+
+
+
+.THIS .a {
+    margin-top: 7px;
+    
+}
+
+.THIS #myUL {
+    list-style-type: block;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    overflow:visible;
+    overflow-x: hidden; 
+    max-block-size: -webkit-fill-available;
+    max-height: 14rem;
+}
+.THIS #myUL li {
+    border: 1px solid #ddd;
+    margin-top: -1px;
+    text-decoration: none;
+    font-size: 14px;
+    color: black;
+    display: block;
+    height: 25px;
+}
+.THIS .slds-button_brand{
+    margin-right: 1rem
+}
+
+.THIS .a svg{
+    fill : rgb(0, 98, 178);    
+}
+
+.THIS .slds-medium-show{
+    display:none;
+}
+
+.THIS .tab {
+    width: 0%;
+}
+.THIS .slds-form-element__label{
+    padding-right: 0rem;
+}
+
+.THIS .b .slds-icon {
+    width: 1rem;
+}
+
+.THIS .slds-p-top_medium {
+    padding-left: 0rem;
+}
+
+.THIS .slds-has-dividers_around>.slds-item {
+    margin-top:0.5rem;
+    margin-right:1rem;
+    margin-left:1rem;    
+    background-color: rgb(243, 242, 242);
+}
+
+.THIS .slds-theme_error {
+    margin-left: -1rem;
+    margin-right: -1rem;
+}
+
+.THIS .slds-text-heading_small {
+    color: rgb(194, 57, 52);
+}
+
+.THIS .slds-gutters .slds-col {
+    padding-right: 0rem;
+    padding-left: 0rem;
+}
+/*for upload button*/
+.THIS .slds-file-selector__dropzone { 
+    margin-left: 1rem;
+    border: 0px dashed rgb(221, 219, 218);
+}
+
+
+.THIS .mousehover:hover {
+    background:rgb(243, 242, 242);
+}
+
+.THIS .slds-button_icon-x-small{
+    
+    border: none;
+}
+
+.THIS .slds-nav-vertical__item.slds-is-active .slds-nav-vertical__action {
+    font-weight: normal;
+}
+.THIS .slds-nav-vertical__item.slds-is-active:before {
+    width:13.2rem;
+}

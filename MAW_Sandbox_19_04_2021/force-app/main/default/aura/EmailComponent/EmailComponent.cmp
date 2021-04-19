@@ -1,0 +1,380 @@
+<aura:component controller="GetUserEmail" implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    
+   
+    <aura:attribute name="user" type="List"/>
+    <aura:attribute name="defaultUser" type="user"/>
+    <aura:attribute name="fromValue" type="String"/>
+    <aura:attribute name="oldEmailValue" type="String"/>
+    <aura:attribute name="isHide" type="boolean" default="true"/>
+    
+    
+    <aura:attribute name="isToSearchText" type="boolean"  default="false"/>
+    <aura:attribute name="isCcSearchText" type="boolean"  default="false"/>
+    <aura:attribute name="isBccSearchText" type="boolean" default="false"/>
+    
+    <aura:attribute type="Boolean" name="showError"  default="False"/>
+    <aura:attribute type="Boolean" name="showToast" default="False"/>
+    
+    <aura:attribute name="body" type="String" />
+    <aura:attribute name="subject" type="string"/>
+    
+    <aura:attribute type="String" name="toastIconName" default=""/>
+    <aura:attribute type="String" name="toastMessage" default=""/>
+    <aura:attribute type="String" name="customMessage" default=""/>
+    
+    <aura:attribute name="isOpenModel" type="boolean" default="false"/>
+    <aura:attribute type="String" name="roleValue" />
+    <aura:attribute name="accept" type="List" default="['.jpg', '.jpeg', '.pdf', '.txt', '.doc','.html']"/>
+    <aura:attribute name="multiple" type="Boolean" default="true"/>
+    <aura:attribute name="disabled" type="Boolean" default="false"/>
+    
+    <aura:attribute name="attchmentList" type="List"/>
+    
+    <aura:attribute name="uploadedList" type="List"/>
+    <aura:attribute name="isDisable" type="boolean" default="true"/>
+    <aura:attribute name="checkRecordList" type="List"/>
+    <aura:attribute name="addLabel" type="string" default="Add"/>
+    <aura:attribute name="addNumber" type="integer" default="0"/>
+    <aura:attribute name="count" type="integer"/>
+    
+    <aura:attribute name="clicked" type="boolean" default="false"/>
+    
+    <aura:attribute name="newEmail" type="string"/>
+    <aura:attribute name="showErrorflagForInputEmail" type="boolean" default="false"/>
+    <aura:attribute name="ErrorMsgForInputEmail" type="string"/>
+    <aura:attribute name="pillsForinput" type="List" />
+    
+    <aura:attribute name="newCCEmail" type="string"/>
+    <aura:attribute name="CCpillsForinput" type="List" />
+    <aura:attribute name="ErrorMsgForInputEmailCC" type="string"/>
+    
+    <aura:attribute name="newBCCEmail" type="string"/>
+    <aura:attribute name="BCCpillsForinput" type="List" />
+    <aura:attribute name="ErrorMsgForInputEmailBCC" type="string"/>
+    
+    <aura:attribute name="flag1" type="boolean" default="false"/>
+    <aura:attribute name="flag2" type="boolean" default="false"/>
+    <aura:attribute name="flag3" type="boolean" default="false"/>
+    <aura:attribute name="RoleEmailSet" type="List" />
+    <aura:attribute name="Role" type="List" default = "[{ value:'', label: '--Select--'},{ value:'Medical Specialist', label: 'Medical Specialist'},{ value:'Social Worker', label: 'Social Worker'}]"/>
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doinit }"/>
+    
+    
+    <aura:if isTrue="{!v.showErrorflagForInputEmail}">
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+            <span class="slds-assistive-text">error</span>
+            <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+                <lightning:icon iconName="utility:error" alternativeText="Connected" title="error" />
+            </span>
+            <h2>{!v.ErrorMsgForInputEmail}
+                <a href="javascript:void(0);">More Information</a>
+            </h2>
+            <div class="slds-notify__close">
+                <lightning:buttonIcon  iconName="utility:close" variant="bare" onclick="{! c.hideError }" alternativeText="Settings" title="close" />
+            </div>
+        </div>
+        
+    </aura:if>    
+    
+        <aura:if isTrue="{!v.showError}">
+            <div class="slds-p-around_small  slds-theme_error">
+                <div class="slds-text-heading_medium slds-text-align_left">
+                    <p style="font-size:1rem;">{!v.toastMessage} </p>
+                </div>
+            </div>
+            <div class="slds-notify__content">
+                <h2 style="color:rgb(194,57,54);">{!v.customMessage}</h2>
+            </div>
+            
+        </aura:if>
+        <lightning:card title="">
+            <div class="slds-align_absolute-center slds-p-bottom_x-small"><p style="color:DarkBlue;font-size:3vh;">Invite for Medical Specialist\Social Worker</p></div>
+            <!-->=================================From Box of email component=============================</-->      
+            <lightning:layout>
+                <lightning:layoutItem size="2" 
+                                      padding="around-small">
+                    <p><abbr style="color:rgb(128,0,0)">*</abbr>From</p>
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem size="10" padding="around-small">
+                    
+                    <lightning:combobox aura:Id="from"
+                                        name="user" 
+                                        variant="label-hidden" 
+                                        options="{! v.user }" 
+                                        value="Email"
+                                        onchange="{! c.handleChange }"/>
+                </lightning:layoutItem>
+            </lightning:layout>
+            
+            <!-->=================================Role Box of email component=============================</--> 
+            <lightning:layout>
+                <lightning:layoutItem size="2" 
+                                      padding="around-small">
+                    <p><abbr style="color:rgb(128,0,0)">*</abbr>Role</p>
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem size="10" padding="around-small">
+                    
+                    <lightning:combobox aura:Id="RoleId"
+                                        name="role" 
+                                        variant="label-hidden" 
+                                        options="{! v.Role }" 
+                                        value="{! v.roleValue}"
+                                        required="true"
+                                        onchange="{! c.handleChange }"/>
+                </lightning:layoutItem>
+            </lightning:layout>
+            <!-->=================================End Role Box of email component=============================</-->    
+            
+            <!-->=================================To Box with pill container of email component=============================</-->   
+            <lightning:layout>
+                <lightning:layoutItem size="2" padding="around-small">
+                    <p><abbr style="color:rgb(128,0,0)">*</abbr>To</p>
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem size="10" padding="around-small">
+                    <lightning:input class=""
+                                                 aura:id="txtEmail"
+                                                 type="text" 
+                                                 name="input1" 
+                                                 variant="label-hidden"
+                                                 value="{!v.newEmail}"
+                                                 onchange="{!c.onChangeEmail}" 
+                                                 required="true"
+                                                 />
+                    <aura:if isTrue="{!v.flag1}">
+                        <p style="color:red;text-align:center;" >{!v.ErrorMsgForInputEmail}</p>
+                    </aura:if>
+                </lightning:layoutItem>
+            </lightning:layout>
+            <!-->=================================Cc Box with pill container of email component=============================</-->    
+            
+            <!-->=================================Specify Subject of email component of email component=============================</-->      
+            <lightning:layout>
+                <lightning:layoutItem size="2" padding="around-small">
+                    <p><abbr style="color:rgb(128,0,0)">*</abbr>Subject</p>
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem size="10" padding="around-small">
+                    <lightning:input aura:Id="subjectfield" 
+                                     type="text" 
+                                     name="input1" 
+                                     variant="label-hidden"
+                                     placeholder="Enter Subject..."
+                                     value="{!v.subject}"
+                                     required="true"/>  
+                </lightning:layoutItem>
+            </lightning:layout>
+            
+            <!-->=================================To type message in Body for email component=============================</-->       
+            <lightning:layout>
+                <lightning:layoutItem padding="around-small">
+                    <pre><lightning:inputRichText aura:id="bodyfield"
+                                                  value="{!v.body}" 
+                                                  placeholder="Type something interesting"/>
+                        
+                    </pre>
+                </lightning:layoutItem>
+            </lightning:layout>
+            <aura:iteration items="{!v.uploadedList}" var="attach">
+                <ul class="slds-has-dividers_around slds-has-block-links_space">
+                    <li class="slds-item">
+                        <div class="slds-form-element">
+                            <table>
+                                <tr>
+                                    <td style="padding-left:11px;width:0.5rem">
+                                        
+                                        <aura:if isTrue="{!attach.FileExtension == 'jpg'}">
+                                            <lightning:icon iconName="doctype:image" alternativeText="Doc image" size="x-small"/>  
+                                        </aura:if>
+                                        <aura:if isTrue="{!attach.FileExtension == 'txt'}">
+                                            <lightning:icon iconName="doctype:txt" alternativeText="Doc image" size="x-small"/>  
+                                        </aura:if>
+                                        <aura:if isTrue="{!attach.FileExtension == 'pdf'}">
+                                            <lightning:icon iconName="doctype:pdf" alternativeText="Doc image" size="x-small"/>  
+                                        </aura:if>
+                                        <aura:if isTrue="{!attach.FileExtension == 'html'}">
+                                            <lightning:icon iconName="doctype:html" alternativeText="Doc image" size="x-small"/>  
+                                        </aura:if>
+                                        <aura:if isTrue="{!attach.FileExtension == 'png'}">
+                                            <lightning:icon iconName="doctype:image" alternativeText="Doc image" size="x-small"/>  
+                                        </aura:if>
+                                    </td>
+                                    <td style="float:left">
+                                        <a href="javascript:void()" onclick="{!c.previewFile}" id="{!attach.Id}" class="slds-truncate">{!attach.Title} </a>
+                                    </td>
+                                    <td style="text-align: right;padding-right: 4px;margin-right: 8px">
+                                        
+                                        <lightning:buttonIcon iconName="utility:close" value="{!attach.Id}" alternativeText="close" size="x-small" onclick="{!c.removeAttachment}"/>
+                                        
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </li>
+                </ul>
+            </aura:iteration>
+            
+            <!-->=================================Attachment for  email component=============================</-->    
+            <div class='slds-float_right slds-p-top_small'>     
+                <lightning:button variant="brand" label=" Send " onclick="{! c.SendEmail }" />    
+            </div>   
+            <lightning:layout >
+                <lightning:layoutItem padding="around-small">  
+                    <lightning:buttonIcon iconName="utility:attach"  alternativeText="attach"
+                                          onclick="{! c.isOpenModel}"/>  
+                    
+                    <div>
+                        <!--Use aura:if tag to display Model Box, on the bese of conditions. [isOpenModel boolean attribute] -->   
+                        <aura:if isTrue="{!v.isOpenModel}">
+                            
+                            <!-->==================================================MODAL BOX Start=============================================================</--> 
+                            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                <div class="slds-modal__container">
+                                    <!-- ###### MODAL BOX HEADER Start ######-->
+                                    <header class="slds-modal__header">
+                                        <lightning:buttonIcon iconName="utility:close"
+                                                              onclick="{! c.closeModel }"
+                                                              alternativeText="close"
+                                                              variant="bare-inverse"
+                                                              class="slds-modal__close"/>
+                                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Select files</h2>
+                                    </header>
+                                    <!-->=================================================== MODAL BOX BODY Part Start=========================================</-->
+                                    <div class="slds-modal__content" id="modal-content-id-1" style ="min-height: 21rem;">
+                                        
+                                        <div class="slds-grid slds-gutters slds-p-left_medium slds-p-right_medium">
+                                            
+                                            <div class="slds-col slds-size_1-of-3 " >
+                                                <span>
+                                                    <lightning:fileUpload name="fileUploader"
+                                                                          multiple="{!v.multiple}"
+                                                                          accept="{!v.accept}"
+                                                                          disabled="{!v.disabled}"
+                                                                          recordId="{!v.recordId}"
+                                                                          onuploadfinished="{!c.handleUploadFinished }"/>       
+                                                </span>
+                                            </div>
+                                            <div class="slds-border_left"></div>
+                                            
+                                            <div style="width:385px;height:25px;margin-top:15px;margin-left:15px">
+                                                
+                                                <lightning:input type="search" 
+                                                                 placeholder = "Search Files..."
+                                                                 name="input1" 
+                                                                 onchange="{!c.searchKeyChangeAttachment}" 
+                                                                 variant="label-hidden"/> 
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="slds-grid slds-gutters slds-p-left_medium slds-p-right_medium">
+                                            
+                                            <div class="slds-col slds-size_1-of-3 slds-p-top_medium" style="min-height: 18rem;">
+                                                <div class="slds-border_top"></div>
+                                                <div style="margin-top: -1rem; width:320px;">
+                                                    <lightning:verticalNavigation  selectedItem="Owned">
+                                                        <lightning:verticalNavigationSection>
+                                                            <lightning:verticalNavigationItem label="Owned by Me" name="Owned" />
+                                                            
+                                                        </lightning:verticalNavigationSection>
+                                                    </lightning:verticalNavigation>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="slds-border_left"></div>
+                                            <div class="slds-col slds-size_2-of-3 slds-p-top_medium" >
+                                                <div class="cover">
+                                                    <div class="slds-scrollable_y" style="height:18rem;width:26rem">  
+                                                        <div class="slds-form-element">
+                                                            <aura:iteration items="{!v.attchmentList}" var="attach">
+                                                                
+                                                                <table class="slds-table" role="grid">      
+                                                                    <thead>  
+                                                                        <!--a name="{!attach.Id}" onclick="{!c.clickCheckBox}"-->
+                                                                        <tr class="slds-text-title--caps mousehover">
+                                                                            <div class="slds-border_top" style="width:400px">
+                                                                                
+                                                                                <td scope="col">
+                                                                                    <div class="slds-truncate"  title="{!attach.Title}">
+                                                                                        <table class="tab">
+                                                                                            <tr>
+                                                                                                <td scope="col">           
+                                                                                                    <label class="slds-checkbox">
+                                                                                                        <lightning:input type="checkbox" value="{!attach.Id+','+attach.Title+','+attach.ContentModifiedDate+','+attach.ContentSize+','+attach.FileExtension}"  
+                                                                                                                         aura:id="checkbox" onchange="{!c.Showhide}"/>
+                                                                                                        
+                                                                                                    </label>
+                                                                                                </td>
+                                                                                                <td style="padding: 4px;">  
+                                                                                                    <aura:if isTrue="{!attach.FileExtension == 'jpg'}">
+                                                                                                        <lightning:icon iconName="doctype:image" alternativeText="Doc image"/>  
+                                                                                                    </aura:if>
+                                                                                                    <aura:if isTrue="{!attach.FileExtension == 'txt'}">
+                                                                                                        <lightning:icon iconName="doctype:txt" alternativeText="Doc image" />  
+                                                                                                    </aura:if>
+                                                                                                    <aura:if isTrue="{!attach.FileExtension == 'pdf'}">
+                                                                                                        <lightning:icon iconName="doctype:pdf" alternativeText="Doc image"/>  
+                                                                                                    </aura:if>
+                                                                                                    <aura:if isTrue="{!attach.FileExtension == 'html'}">
+                                                                                                        <lightning:icon iconName="doctype:html" alternativeText="Doc image"/>  
+                                                                                                    </aura:if>
+                                                                                                    <aura:if isTrue="{!attach.FileExtension == 'png'}">
+                                                                                                        <lightning:icon iconName="doctype:image" alternativeText="Doc image"/>  
+                                                                                                    </aura:if>
+                                                                                                </td>
+                                                                                                <td>  
+                                                                                                    
+                                                                                                    <div class="slds-size_11-of-12 slds-truncate">
+                                                                                                        <a style="text-decoration:none" name="{!attach.Title}">
+                                                                                                            {!attach.Title}
+                                                                                                        </a>    
+                                                                                                    </div> 
+                                                                                                    <br/>
+                                                                                                    <lightning:formattedDateTime value="{!attach.ContentModifiedDate}"/>
+                                                                                                    <b> . </b>{!attach.ContentSize} bytes  
+                                                                                                    <b> . </b>{!attach.FileExtension} 
+                                                                                                </td>
+                                                                                            </tr>    
+                                                                                        </table> 
+                                                                                    </div>
+                                                                                </td>
+                                                                            </div>
+                                                                        </tr>
+                                                                        <!--/a-->  
+                                                                    </thead>
+                                                                </table>
+                                                            </aura:iteration>   
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!--###### MODAL BOX FOOTER Part Start ######-->
+                                        <footer class="slds-modal__footer">
+                                            <lightning:button variant="neutral" 
+                                                              label="Cancel"
+                                                              title="Cancel"
+                                                              onclick="{! c.closeModel }"/>
+                                            <lightning:button variant="brand" 
+                                                              label="{!v.addLabel}"
+                                                              title="Like and Close"
+                                                              disabled="{!v.isDisable}"
+                                                              onclick="{! c.addAttachmentFile }"/>
+                                            <div class="slds-float_left">
+                                                <p>{!v.addNumber} of 10 files selected </p>   
+                                            </div>    
+                                        </footer>
+                                    </div>
+                                </div>
+                            </section>
+                            <div class="slds-backdrop slds-backdrop_open"></div>
+                            <!--###### MODAL BOX Part END Here ######-->
+                        </aura:if>
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </lightning:card>
+</aura:component>

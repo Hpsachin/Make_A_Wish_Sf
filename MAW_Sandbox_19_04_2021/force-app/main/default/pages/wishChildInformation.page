@@ -1,0 +1,216 @@
+<apex:page showHeader="false" standardStylesheets="false" standardController="Wish__c" renderAs="PDF">
+    <body style="width: 100%; font-size: 11pt; font-weight: normal; font-family: sans-serif;">
+        <table style="width: 99%; font-weight: bold; font-size: 1.2em;">
+            <tr>
+                <td style="font-size: 18pt; font-weight: bold; width: 230px;">Wish Child Details - </td>
+                <td><apex:outputText value="{!Wish__c.Child__r.Name}" /></td>
+                <td><apex:outputText value="{!Wish__c.Child__r.Gender__c}" /></td>
+                <td><apex:outputText value="{0, date, dd/MM/yyyy}"><apex:param value="{!Wish__c.Child_DOB__c}" /><apex:param value="{!Wish__c.Child__r.Birthdate}" /></apex:outputText></td>
+                <td style="text-align: right;">Wish #: <apex:outputText value="{!Wish__c.Wish_Number__c}" /></td>
+            </tr>
+        </table>
+        
+        <br />
+        <br />
+        
+        <!-- Pull from cases whether the child can communicate verbally. No idea how this will handle multiple cases. -->
+        <apex:variable value="{!''}" var="ccv"/> 
+        <apex:repeat var="m" value="{!Wish__c.Cases__r}">
+            <apex:variable var="ccv" value="{!m.Can_your_child_communicate_verbally__c}"/>
+        </apex:repeat>
+        
+        <apex:repeat value="{!Wish__c.Medical_Conditions__r}" var="mc">
+            <!--<apex:outputPanel rendered="{!mc.Primary_Condition__c}">-->
+                
+                <table style="width: 98%; border-width: 2px 4px 4px 2px; border-color: #607ba2; border-style: solid;">
+                    <tr>
+                        <td>
+                            <!--
+                            <apex:outputText value="{!mc.ICD_Name__c}" />
+                            <apex:outputPanel rendered="{!mc.ICD_Name__c == ''}">
+                                (No name listed for this medical condition)
+                            </apex:outputPanel>
+                            -->
+                            <apex:repeat value="{!Wish__c.Medical_Conditions__r}" var="m">
+                                {!m.Medical_Specialists_Comments__c} <br/>
+                            </apex:repeat>
+                        </td>
+                    </tr>
+                    <tr><td>&nbsp;</td></tr>
+                    <tr>
+                        <td width="45%" style="font-weight: bold;">Child aware of life-threating condition?</td>
+                        <td width="15%"><apex:outputText value="{!IF(mc.Child_Aware__c == '', 'Unknown', mc.Child_Aware__c)}" /></td>
+                        <td width="15%" style="font-weight: bold;">Urgent?</td>
+                        <td><apex:outputText value="{!Wish__c.Urgent__c}" /></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Able to communicate verbally?</td>
+                        <td style="font-weight: normal;">{!ccv}</td>
+                        <td style="font-weight: bold;">Time frame:</td>
+                        <td><apex:outputText value="{!Wish__c.Rush_Wish_Timeline__c}" /></td>
+                    </tr>
+                    
+                </table>
+                <br />
+            <!--</apex:outputPanel>-->
+        </apex:repeat>
+
+        <apex:variable var="v1" value="'{!Wish__c.Medical_Conditions__r}'"/>
+        <apex:variable var="v2" value="'[]'"/>
+        <apex:outputPanel rendered="{!v1 == v2}">
+            <table style="width: 98%; border-width: 2px 4px 4px 2px; border-color: #607ba2; border-style: solid;">
+                <tr>
+                    <td>No medical conditions listed.</td>
+                </tr>
+            </table>
+        </apex:outputPanel>
+        
+        <br />
+        
+        <table style="width: 98%; border-width: 2px 4px 4px 2px; border-color: #607ba2; border-style: solid;">
+            <tr>
+                <td colspan="2" style="text-align: center; background-color: #C0C0C0; font-weight: bold;">Contact Details</td>
+            </tr>
+            <tr>
+                <td rowspan="2" width="30%">
+                    {!Wish__c.Child__r.MailingStreet}<br />
+                    {!Wish__c.Child__r.MailingCity} {!Wish__c.Child__r.MailingState} {!Wish__c.Child__r.MailingPostalCode}<br />
+                    {!Wish__c.Child__r.MailingCountry}
+                </td>
+                
+                <td>
+                    
+                    <apex:repeat value="{!Wish__c.Celebrities__r}" var="m">
+                        <apex:outputPanel rendered="{!OR(m.Type__c  == 'Mother', m.Type__c  == 'Father')}">
+                            
+                            <table style="display: inline-block; width: 49%;">
+                                <tr>
+                                    <td style="font-weight: bold; text-align: center;" colspan="2">
+                                        {!m.Type__c}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Mobile:</td>
+                                    <td><apex:outputText value="{!m.Name__r.MobilePhone}" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Home:</td>
+                                    <td><apex:outputText value="{!m.Name__r.HomePhone}" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Other:</td>
+                                    <td><apex:outputText value="{!m.Name__r.OtherPhone}" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Email:</td>
+                                    <td style="word-break: break-all; word-wrap: break-work;"><apex:outputText value="{!LEFT(m.Name__r.Email, 25)&' '&RIGHT(m.Name__r.Email,LEN(m.Name__r.Email)-25)}" /></td>
+                                </tr>
+                            </table>
+                            
+                        </apex:outputPanel>
+                    </apex:repeat>
+                    
+                </td>
+                
+            </tr>
+        </table>
+        
+        <br />
+        
+        <table style="width: 98%; border-width: 2px 4px 4px 2px; border-color: #607ba2; border-style: solid;">
+            <thead>
+                <tr>
+                    <th colspan="3" style="text-align: center; background-color: #C0C0C0; font-weight: bold;">Family Details - Residing</th>
+                </tr>
+                <tr style="font-weight: bold;">
+                    <th>Relationship</th>
+                    <th>Name</th>
+                    <th>Birth Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <apex:repeat value="{!Wish__c.Celebrities__r}" var="m">
+                    <!--If there was a checkbox on participants that let us know if they resided with the child, this would be easier-->
+                    <apex:outputText rendered="{!AND(NOT(ISBLANK(m.Type__c)), CONTAINS('Mother,Father,Brother,Sister,Grandmother,Grandfather,Aunt,Uncle,Step-Brother,Step-Father,Step-Mother,Step-Sister,Step Brother,Step Father,Step Mother,Step Sister,Brother in Law,Cousin,Foster Parent,Friend,Nephew', m.Type__c))}">
+                        
+                        <tr>
+                            <td>{!m.Type__c}</td>
+                            <td>{!m.Name__r.Name}</td>
+                            <td><apex:outputText value="{0, date, dd/MM/yyyy}"><apex:param value="{!m.Name__r.Birthdate}" /></apex:outputText></td>
+                        </tr>
+                        
+                    </apex:outputText>
+                </apex:repeat>
+                
+            </tbody>
+        </table>
+        
+        <br />
+        <apex:outputPanel rendered="false">
+        <table style="width: 98%; border-width: 2px 4px 4px 2px; border-color: #607ba2; border-style: solid;">
+            <thead>
+                <tr>
+                    <th colspan="999" style="text-align: center; background-color: #C0C0C0; font-weight: bold;">Medical Contact Details</th>
+                </tr>
+                <tr style="font-weight: bold;">
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Fax</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <apex:repeat value="{!Wish__c.Celebrities__r}" var="m">
+                    <apex:outputText rendered="{!AND(NOT(ISBLANK(m.Type__c)), CONTAINS('General Practitioner,Medical Specialist,Social Worker', m.Type__c))}">
+                        
+                        <tr>
+                            <td>{!m.Type__c}</td>
+                            <td>{!m.Name__r.Name}</td>
+                            <td>{!m.Name__r.npe01__WorkPhone__c}</td>
+                            <td>{!m.Name__r.Fax}</td>
+                            <td>{!m.Name__r.npe01__WorkEmail__c}</td>
+                        </tr>
+                        
+                    </apex:outputText>
+                </apex:repeat>
+                
+            </tbody>
+        </table>
+        
+        <br />
+        </apex:outputPanel>
+        
+        <table style="width: 98%; border-width: 2px 4px 4px 2px; border-color: #607ba2; border-style: solid;">
+            <thead>
+                <tr>
+                    <th colspan="999" style="text-align: center; background-color: #C0C0C0; font-weight: bold;">Our Details</th>
+                </tr>
+                <tr style="font-weight: bold;">
+                    <th>Wish services coordinator: {!Wish__c.Wish_Co_Ordinator__r.Name}</th>
+                    <th>Branch: {!Wish__c.Volunteer_Branch__r.Name}</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <!--<apex:repeat value="{!Wish__c.Celebrities__r}" var="m">
+                    <apex:outputText rendered="{!AND(NOT(ISBLANK(m.Type__c)), CONTAINS('General Practitioner,Medical Specialist,Social Worker', m.Type__c))}">
+                        
+                        <tr>
+                            <td>{!m.Type__c}</td>
+                            <td>{!m.Name__r.Name}</td>
+                            <td>{!m.Name__r.HomePhone}</td>
+                            <td>{!m.Name__r.npe01__WorkPhone__c}</td>
+                            <td>{!m.Name__r.Fax}</td>
+                        </tr>
+                        
+                    </apex:outputText>
+                </apex:repeat>-->
+                
+            </tbody>
+        </table>
+        
+    </body>
+</apex:page>

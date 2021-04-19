@@ -1,0 +1,45 @@
+<aura:component  description="ShowAllRecords"  controller="ShowAllRecordsController" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    <aura:attribute name="data" type="List" access="PRIVATE"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="showTable" type="Boolean" default="false"/>
+    <aura:attribute name="selectedRows" type="List"/>
+    <aura:attribute name="stringOfIds" type="List"/>
+    <aura:attribute name="lookupName" type="String"/>
+    <aura:attribute name="role" type="String"/>
+    <aura:attribute name="changed" type="Boolean"/>
+    
+    
+    <div class="slds-box slds-theme_default">
+        <div style="text-align: center; font-size: 18px; font-weight: bold;">
+            Associate Multiple Medical Specialists &amp; Social Workers
+        </div>
+        <div>
+            <lightning:select aura:id="select" name="select" label="Select the Role" onchange="{!c.onChange}">
+                <option value="">Select</option>
+                <option value="Medical Specialist">Medical Specialist</option>
+                <option value="Social Worker">Social Worker</option>
+            </lightning:select>
+        </div>
+        <aura:if isTrue="{!v.showTable}">
+            <aura:if isTrue="{!v.lookupName != null}">
+                <div class="slds-p-vertical_x-small">
+                    <b>Default {!v.role} : {!v.lookupName}</b>
+                </div>
+                <aura:set attribute="else">
+                    <div class="slds-p-vertical_x-small">
+                        <b>No default {!v.role} is associated with this record.</b>
+                    </div>
+                </aura:set>
+            </aura:if>
+            <div style="height: 300px" class="slds-p-top_x-small">
+                <lightning:datatable aura:id="partnerTable" columns="{!v.columns}" data="{!v.data}" keyField="Id" 
+                                     onrowselection="{!c.handleSelect}" selectedRows="{!v.selectedRows}"/>
+            </div>
+            <aura:if isTrue="{!v.changed}">
+                <div class="slds-form-element slds-align_absolute-center slds-p-top_small">
+                    <lightning:button label="Save" variant="brand" onclick="{! c.save }"/>
+                </div>
+            </aura:if>
+        </aura:if>
+    </div>
+</aura:component>

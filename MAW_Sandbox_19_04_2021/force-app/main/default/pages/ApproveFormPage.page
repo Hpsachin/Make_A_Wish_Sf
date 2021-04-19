@@ -1,0 +1,16 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false" lightningStylesheets="true">
+    <apex:includeLightning />
+
+    <div id="BcSecuritiesDiv"></div>
+
+    <script>
+        $Lightning.use("c:ApproveSuperAdminApp", function() {
+            $Lightning.createComponent("c:ApproveSuperAdminCmp",
+                    {},
+                    "BcSecuritiesDiv",
+                    function(cmp) {
+                        console.log('>>>>> App is hosted');
+                    });
+        });
+    </script>
+</apex:page>

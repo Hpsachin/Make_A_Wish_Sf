@@ -1,0 +1,80 @@
+<apex:page standardController="Case" showHeader="false" standardStylesheets="false" applyHTMLTag="false" language="en-AU">
+    
+    <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <!-- scrolling viewport
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+-->
+            <!-- no scrolling viewport -->
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+            
+            <title>Make A Wish - Wish Application</title>
+            
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.validate.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/additional-methods.js')}" />
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/bootstrap/js/bootstrap.min.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/bootstrap/css/bootstrap.min.css')}" />
+            
+            <style>
+                
+                
+                div.form-group > label.control-label + div > span {
+                padding-top: 7px;
+                display: inline-block;
+                }
+                
+                html, body { background-color:#0069ba; font-family: 'Century Gothic', cursive; }
+                
+                h1 { color:#0069ba; margin: 30px 0px; }
+                h2, h3 { color:#333; }
+                
+                #formContainer { background-color:#fff; padding: 2% 8% 7% 5%; margin-bottom:5%; }
+                
+                .btn {
+                margin:4px 10px 0px 0px;
+                }
+                
+                .btn-row { text-align:center; margin-bottom:10px; }
+                
+                span.required, label.error { color: red; }
+                
+                .loadingDiv { text-align: center; }
+                .loadingImage { height:32px; }
+                
+                .dateFormat { display:none; }
+                
+            </style>
+            
+        </head>
+        
+        <apex:variable var="labelCol" value="col-xs-12 col-sm-3" />
+        <apex:variable var="labelOffset" value="col-sm-offset-3" />
+        <apex:variable var="inputCol" value="col-xs-12 col-sm-9" />
+        <apex:variable var="errorCol" value="col-xs-12 {!labelOffset} col-sm-9" />
+        
+        <body>
+            <div class="container">
+                
+                <img src="{!URLFOR($Resource.Resources, '/resources/img/logo.jpg')}" alt="Make A Wish Australia" />
+                
+                
+                <div id="formContainer" class="form-horizontal clearfix">
+                    
+                    <h1>
+                        Wish application submitted
+                    </h1>
+                    
+                    <p>
+                        Your wish application has been successfully submitted.
+                    </p>
+                    
+                </div>
+            </div>
+            
+        </body>
+        
+    </html>
+</apex:page>

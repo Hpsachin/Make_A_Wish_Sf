@@ -1,0 +1,157 @@
+<apex:page showHeader="false" standardStylesheets="false" applyHTMLTag="false" language="en-AU">
+    
+    <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <!-- scrolling viewport
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			-->
+            <!-- no scrolling viewport -->
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+            
+            <title>Make A Wish - Volunteer Application</title>
+            
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.validate.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/additional-methods.js')}" />
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/bootstrap/js/bootstrap.min.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/bootstrap/css/bootstrap.min.css')}" />
+        
+            
+            <apex:variable var="labelCol" value="col-xs-12 col-sm-3" />
+            <apex:variable var="labelOffset" value="col-sm-offset-3" />
+            <apex:variable var="inputCol" value="col-xs-12 col-sm-9" />
+            <apex:variable var="errorCol" value="col-xs-12 {!labelOffset} col-sm-9" />
+            
+            <script>
+           
+            $(function() {
+                init();
+            });
+            
+              function loading(){
+			
+				$('.loadingImage').css('display', 'inline');
+				$('.submitBtn').prop('disabled', true);
+				
+			}
+		
+			function loadingReturn(){
+			
+				$('.loadingImage').css('display', 'none');
+				$('.submitBtn').prop('disabled', false);
+				
+				if($("#err").doesExist()) {
+					$('html, body').animate({
+				        scrollTop: $("#err").offset().top
+				    }, 500);
+				}
+				
+				return false;
+			}
+            
+            function init() {
+                loadingReturn();
+                setValidation();
+                }
+            
+            function setValidation() {
+		
+				$("[id$=volunteerApplicationForm]").validate({
+					 debug: true,
+					 submitHandler: function(form) {
+						loading();
+						submitForm();
+					  },
+					 errorPlacement: function(error, element) {
+						if (element.attr("type") == "radio") {
+						  error.insertAfter(element.closest("table"));
+						} else if (element.attr("type") == "select") {
+							error.insertAfter(element.closest("table"));
+						} else {
+						  error.insertAfter(element);
+						}
+					  }
+				});  
+                
+                if($("table.requiredRadios input[type=radio]").doesExist()) {
+					$("table.typeList input[type=radio]").rules("add",{
+						required: true
+					});  
+				}
+		
+				
+				if($("textarea.max255").doesExist()) {
+					$("textarea.max255]").rules("add",{
+						maxlength: 255
+					});
+				}
+		
+				jQuery.validator.messages.required = "this value is required.";
+            }
+            
+            jQuery.fn.doesExist = function(){
+				return $(this).length > 0;
+			};
+            
+            </script>
+            
+             <style>
+                
+                
+                div.form-group > label.control-label + div > span {
+                	padding-top: 7px;
+                	display: inline-block;
+                }
+                
+                html, body { background-color:#0069ba; font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;; }
+                
+                h1 { color:#0069ba; margin: 30px 0px; }
+                h2, h3 { color:#333; }
+                
+                #formContainer { background-color:#fff; padding: 2% 5% 7%; margin-bottom:5%; }
+                
+                .btn {
+                margin:4px 10px 0px 0px;
+                }
+                
+                .btn-row { text-align:center; margin-bottom:10px; }
+                
+                span.required, label.error { color: red; }
+                
+                .loadingDiv { text-align: center; }
+                .loadingImage { height:32px; }
+                
+                .dateFormat { display:none; }
+                
+                div.bluePanel { background-color:#0069ba; color:#fff; padding:3%; }
+                p.leadParagraph { font-size:1.1em; font-weight:600;}
+                
+                .col-sm-9 .form-control { width:90%; }
+            </style>
+            
+            <body>
+                
+                <div class="container">
+                    
+                    <img src="{!URLFOR($Resource.Resources, '/resources/img/logo.jpg')}" alt="Make A Wish Australia" />
+                    
+                    <div id="formContainer" class="form-horizontal clearfix">
+                        
+                        <h1>
+                            Application Successfully Submitted.
+                        </h1>   
+
+                        <p>
+                            Thank you for your application, we will be in contact shortly.
+                        </p>
+                            
+                        
+                    </div>
+                        
+                </div>
+            </body>
+        </head>
+    </html>
+</apex:page>

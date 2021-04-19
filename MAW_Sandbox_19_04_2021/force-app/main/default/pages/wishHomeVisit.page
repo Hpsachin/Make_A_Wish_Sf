@@ -1,0 +1,259 @@
+<apex:page standardController="Home_Visit__c" extensions="wishHomeVisitController" docType="html-5.0" >
+    
+    <apex:sectionHeader title="Home Visit Report" subtitle="{!visit.Wish__r.Name}" />
+    
+    <style>
+    
+        #formatForm h1, #formatForm h2, #formatForm h3, #formatForm h4 { font-family:'Century Gothic', cursive; color:#0069ba; display:block; margin:20px 5px; }
+        
+        #formatForm h1 { font-size:36px; }
+        #formatForm h2 { font-size:30px; }
+        #formatForm h3 { font-size:24px; }
+        #formatForm h4 { font-size:18px; }
+        
+        .question { font-weight:bold; font-size:14px; margin:20px 2px; }
+        .question span { font-size:12px; }
+        
+        .textArea {
+            width: 100%;
+            height:80px;
+        }
+        
+        .cke_chrome { margin-top:10px; }
+        
+        .subheading { font-weight:bold; font-size:14px; color:#0069ba; }
+    
+        .questionTable { margin:10px; }
+        .questionTable th, .questionTable td { padding:5px; }
+        
+    </style>
+    
+    <apex:form >
+        
+        <apex:pageBlock >
+            
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Save" action="{!save}" />
+                <apex:commandButton value="Cancel" action="{!cancel}" />
+            </apex:pageBlockButtons>
+            
+            <apex:pageMessages ></apex:pageMessages>
+                       
+            <apex:pageBlockSection columns="2">
+                
+                <apex:outputField value="{!visit.Wish__c}" />
+                
+               		<apex:inputField value="{!visit.Scheduled_Date__c}" />
+               
+                <apex:inputField value="{!visit.Status__c}" />
+                
+                	<apex:inputField value="{!visit.Date_of_Home_Visit__c}" />
+                
+                <!--<apex:outputField value="{!visit.Wish_Child_Name__c}" />-->
+                	
+                    <apex:inputField value="{!visit.Visit_Place__c}">
+                        <apex:actionSupport event="onchange" reRender="phoneVisitPanel" />  
+                    </apex:inputField>
+                    
+                <apex:inputField value="{!visit.Report_Completed_By__c}" />
+                
+                    <apex:pageBlockSectionItem id="phoneVisitPanel">
+                        <apex:inputField value="{!visit.Reason_for_Phone_Visit__c}" rendered="{!visit.Visit_Place__c == 'Phone'}" />
+                    </apex:pageBlockSectionItem>
+                        
+            </apex:pageBlockSection>
+            
+            <div id="formatForm">
+                
+ 
+                <p class="subheading">
+                    Volunteer
+                </p>
+                
+                <ol class="subheading">
+                    <li>Make introductions</li>
+                    <li>Coin Presentation</li>
+                    <li>Ask for wish preperation work</li>
+                    <li>Explain you are going to ask some questions</li>
+                </ol>
+                
+                <h4>
+                    SECTION ONE: QUESTIONS FOR THE WISH CHILD
+                </h4>
+                
+                <p class="question">
+                    Cherished Wish:
+                </p>
+                
+                <p class="eText">
+                    Please use the space below to capture everything you and the child discuss as to their cherished wish.<br/> 
+                   NB: we don’t expect you to capture the wish in a single sentence – you may need to write a few paragraphs to capture everything being talked about.  
+                </p>
+                
+                <apex:inputField value="{!visit.Cherished_Wish__c}" styleClass="textArea" />
+                
+                <p class="question">
+                    Wish Specifics: <span>(colours, models, sizes, theme, activities, purpose, drawings, photos, measurements etc.)</span>
+                </p>
+                
+                <apex:inputField value="{!visit.Wish_specifics__c}" styleClass="textArea" />
+                
+                <h4>
+                    SECTION TWO: QUESTIONS FOR PARENT(S) / GUARDIANS (S)
+                </h4>
+                
+                <p class="question">
+                    Are you comfortable with these ideas and any responsibilities that come with them?
+                </p>
+                
+                <apex:inputField value="{!visit.Comfortable_with_these_ideas__c}" styleClass="textArea" html-placeholder="Yes / No - reason?" />
+                
+                <p class="question">
+                    Now that you know your child/teenager is getting a wish, how do you feel? 
+                </p>
+                
+                <apex:inputField value="{!visit.How_do_you_feel__c}" styleClass="textArea" html-placeholder="Yes / No - reason?" />
+                
+                <h4>
+                    SECTION THREE: ADDITIONAL DETAILS
+                </h4>
+                
+                <p class="question">
+                	Did the child or family talk about anyone in particular that they want to include in the wish? Why? 
+                </p>
+                
+                <apex:inputField value="{!visit.Include_others_in_wish__c}" styleClass="textArea" />
+                
+                <p class="question">
+                    Does anyone have special travel requirements? <br/>
+                    <span>(ie is the wish child in a wheelchair)</span>
+                </p>
+                <apex:actionRegion >
+                    <table class="questionTable">
+                        <tr>
+                            <th>Question</th>
+                            <th>Yes / No</th>
+                            <th>Details</th>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                Is the child in a wheelchair? If so, manual or electric?
+                            </td>
+                            <td>
+                                <apex:inputField value="{!visit.Is_the_child_in_a_wheelchair__c}">
+                                    <apex:actionSupport event="onchange" reRender="wheelchairPanel" />
+                                </apex:inputField>
+                            </td>
+                            <td>
+                                <apex:outputPanel id="wheelchairPanel">
+                                    <apex:inputField value="{!visit.Wheelchair_type__c}" rendered="{!visit.Is_the_child_in_a_wheelchair__c == 'Yes'}" />
+                                </apex:outputPanel>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                Medical equipment required (ie shower chair / oxygen)
+                            </td>
+                            <td>
+                                <apex:inputField value="{!visit.Medical_Equipment__c}">
+                                    <apex:actionSupport event="onchange" reRender="medicalPanel" />
+                                </apex:inputField>
+                            </td>
+                            <td>
+                                <apex:outputPanel id="medicalPanel">
+                                    <apex:inputField value="{!visit.Medical_Equipment_Required__c}" rendered="{!visit.Medical_Equipment__c == 'Yes'}" />
+                                </apex:outputPanel>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                Wheelchair accessible transfers / hire car
+                            </td>
+                            <td>
+                                <apex:inputField value="{!visit.Wheelchair_accessible_transfers__c}" />
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                Ground floor / wheelchair accommodation
+                            </td>
+                            <td>
+                                <apex:inputField value="{!visit.Groud_floor_Wheelchair_Accomodation__c}" />
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                Are they able to stand / walk? (ie get in and out of cars)
+                            </td>
+                            <td>
+                                <apex:inputField value="{!visit.Are_they_able_to_stand_walk__c}" />
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                Does the child have a paid carer?
+                            </td>
+                            <td>
+                                <apex:inputField value="{!visit.Does_the_child_have_a_paid_carer__c}" />
+                            </td>
+                        </tr>
+                        
+                    </table>
+                </apex:actionRegion>
+                
+                <p class="question">
+                    Any other  details which will assist us in planning the wish?
+                </p>
+                
+                <apex:inputField value="{!visit.Any_other_details_to_assist_in_planning__c}" styleClass="textArea" />
+                
+                <h4>
+                    QUESTIONS FOR THE VOLUNTEER TO ANSWER FOLLOWING HOME VISIT:
+                </h4>
+                
+                <p class="question">
+                    Please provide any further information about the wish family dynamics, e.g. outgoing, reserved, parents together/separated. If separated, are they amicable? Please note: this information is vital to assist with the planning of the wish and is kept confidential.
+                </p>
+                
+                <apex:inputField value="{!visit.Wish_family_dynamics__c}" styleClass="textArea" />
+                
+                
+                <p class="question">
+                    Do you think this child and family would be suitable for Public Relations opportunities such as TV or magazine? 
+                </p>
+                
+                <apex:inputField value="{!visit.Suitable_for_Public_Relations__c}">
+                	<apex:actionSupport event="onchange" reRender="prPanel" />
+                </apex:inputField>
+
+                <apex:outputPanel id="prPanel">   
+                    <apex:outputPanel rendered="{!visit.Suitable_for_Public_Relations__c == 'Yes'}">
+                        <p class="question">
+                            If yes, why?
+                        </p>
+                        <apex:inputField value="{!visit.Suitable_for_public_relations_reason__c}" styleClass="textArea" />
+                    </apex:outputPanel>
+                </apex:outputPanel>     
+                
+                <p class="question">
+                    What are you ideas on how this wish might happen?<br/>
+                    <span>(Feel free to brainstorm ideas at your next branch meeting and send them in to your wish coordinator post submitting this report).</span>
+                </p>
+                
+                <apex:inputField value="{!visit.Ideas_on_how_the_wish_might_happen__c}" styleClass="textArea" />
+                
+                
+            </div> 
+            
+            
+        </apex:pageBlock>
+        
+    </apex:form>
+    
+</apex:page>

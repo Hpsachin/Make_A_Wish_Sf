@@ -1,0 +1,474 @@
+<apex:page controller="volunteerApplicationFileController" showHeader="false" standardStylesheets="false" applyHTMLTag="false" language="en-AU">
+    
+    <html lang="en">
+        <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <!-- scrolling viewport
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+-->
+            <!-- no scrolling viewport -->
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+            
+            <title>Make A Wish - Volunteer Application</title>
+            
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.validate.js')}"/>
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/additional-methods.js')}" />
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jqueryui.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/css/jqueryuicss.css')}" />
+            <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/bootstrap/js/bootstrap.min.js')}"/>
+            <apex:stylesheet value="{!URLFOR($Resource.Resources, '/resources/bootstrap/css/bootstrap.min.css')}" />
+            
+            <apex:variable var="inputCol" value="col-xs-12 col-sm-6" />
+            <apex:variable var="buttonCol" value="col-xs-12 col-sm-2" />
+            <apex:variable var="labelCol" value="col-xs-12 col-sm-4" />
+            <apex:variable var="labelOffset" value="col-sm-offset-3" />
+            
+            <apex:variable var="errorCol" value="col-xs-12 {!labelOffset} col-sm-9" />
+            
+            <script type="text/javascript">
+               var maxStringSize = 6000000;    //Maximum String size is 6,000,000 characters
+    var maxFileSize = 4350000;      //After Base64 Encoding, this is the max file size
+    var chunkSize = 950000;         //Maximum Javascript Remoting message size is 1,000,000 characters
+    var attachment;
+    var attachmentName;
+    var fileSize;
+    var positionIndex;
+    var doneUploading;
+            </script>
+          
+
+            <script type="text/javascript">
+
+             function uploadFile(obj) {
+      var file = $(obj).parent().prev().find('input[type=file]')[0].files[0];
+
+      if(file != undefined) {
+        if(file.size <= maxFileSize) {
+          attachmentName = file.name;
+          var fileReader = new FileReader();
+          fileReader.onloadend = function(e) {
+            attachment = window.btoa(this.result);  //Base 64 encode the file before sending it
+            positionIndex=0;
+            fileSize = attachment.length;
+              //console.log("Total Attachment Length: " + fileSize);
+            doneUploading = false;
+            if(fileSize < maxStringSize) {
+              uploadAttachment(null, obj);
+            } else {
+              alert("Base 64 Encoded file is too large.  Maximum size is " + maxStringSize + " your file is " + fileSize + ".");
+            }
+             
+          }
+          fileReader.onerror = function(e) {
+            alert("There was an error reading the file.  Please try again.");
+          }
+          fileReader.onabort = function(e) {
+            alert("There was an error reading the file.  Please try again.");
+          }
+         
+          fileReader.readAsBinaryString(file);  //Read the body of the file
+         
+        } else {
+          alert("File must be under 4.3 MB in size.  Your file is too large.  Please try again.");
+        }
+      } else {
+        alert("You must choose a file before trying to upload it");
+      }
+    }
+            
+        var objHold;    
+        var progress = 0;
+            
+            function uploadAttachment(fileId, obj) {
+                
+            if(obj !== undefined) {
+                objHold = obj;    
+                progress = 0;
+            }
+                
+      var attachmentBody = "";
+      if(fileSize <= positionIndex + chunkSize) {
+        attachmentBody = attachment.substring(positionIndex);
+        doneUploading = true;
+      } else {
+        attachmentBody = attachment.substring(positionIndex, positionIndex + chunkSize);
+      }
+                progress += attachmentBody.length;
+                var percent = parseInt(((progress / fileSize) * 100) -1);
+                percent = percent > 100 ? 99 : percent;
+                $(objHold).parent().next().html('Upload in progress (' + percent + '%)');
+                
+      volunteerApplicationFileController.doUploadAttachment(
+      '{!cId}', attachmentBody, attachmentName, fileId, 
+        function(result, event) {
+            //console.log(result);
+          if(event.type === 'exception') {
+            $(objHold).parent().next().html(event.message);
+              //console.log(event);
+          } else if(event.status) {
+            if(result.substring(0,3) == '00P') {
+              if(doneUploading == true) {
+                  $(objHold).parent().prev().find('input[type=file]').attr('disabled','true');
+                  $(objHold).attr('disabled','true');
+                  $(objHold).parent().next().html('File successfully uploaded.');
+              } else {
+                positionIndex += chunkSize;
+                uploadAttachment(result);
+              }
+            }
+          } else {
+              //console.log(event.message);
+              $(objHold).parent().next().html(event.message);
+          }
+        },
+        {buffer: true, escape: true, timeout: 120000}
+      );
+    }
+
+
+
+              function addRow(divID){                
+
+                  var row = "<div class=\"form-group\"><label class=\"{!inputCol}\"><input type=\"file\" accept=\".pdf,.doc,.docx,.jpg,.jpeg\"  class=\"fileInput\"/></label><div class=\"{!buttonCol}\"><input type=\"button\" value=\"Upload\" onclick=\"uploadFile(this)\"  title=\"Upload\" data-Desc=\"Certified Id\" /></div><div class=\"{!labelCol}\"></div></div>";
+                $('#'+divID).append(row);  
+
+
+              }
+
+            function deleteRow(tableID)
+            {    
+                try
+                {
+                    var table=document.getElementById(tableID);
+                    var rowCount=table.rows.length;
+                    for(var i=0;i<rowCount;i++)
+                    {
+
+                        var row=table.rows[i];
+                        var chkbox=row.cells[0].childNodes[0];
+                        if(null!=chkbox&&true==chkbox.checked)
+                        {
+                            table.deleteRow(i);
+
+                            filesToUpload.splice(i, 1);
+                            // console.log(filesToUpload);
+
+                            rowCount--;
+                            i--;
+                        }
+                    }
+                    processCheckbox();
+                 }
+                 catch(e)
+                 {
+                     alert(e);
+                 }
+             }
+
+            function processCheckbox(){
+                   $("[id$='_remove']").hide();
+                  var checkCount=0;
+                    $("#dataTable input[type='checkbox']").each(function(){
+                    if($(this).is(':checked'))
+                    {
+                        checkCount++;
+                    }
+                   });
+                  if(checkCount >0){
+                       $("[id$='_remove']").show();
+                  }
+
+                }
+
+            
+            $(function() {
+                
+                $("[id$='_remove']").hide();
+                //$("[id$='attachmentBlock']").find('.pbSubsection').attr({'style':'margin-right:-70px !important;'});
+                init();
+                
+            });
+            
+            function loading(){
+                
+                $('.loadingImage').css('display', 'inline');
+                $('.submitBtn').prop('disabled', true);
+                
+            }
+            
+            function loadingReturn(){
+                
+                $('.loadingImage').css('display', 'none');
+                $('.submitBtn').prop('disabled', false);
+                
+                if($("#err").doesExist()) {
+                    $('html, body').animate({
+                        scrollTop: $("#err").offset().top
+                    }, 500);
+                }
+                
+                return false;
+            }
+            
+            function init() {
+                loadingReturn();
+                setValidation();
+            }
+            
+            function setValidation() {
+                
+                
+                $("[id$=volunteerFileForm]").validate({
+                    debug: true,
+                    submitHandler: function(form) {
+                        loading();
+                        submitForm();
+                    },
+                    errorPlacement: function(error, element) {
+                        if (element.attr("type") == "radio") {
+                            error.insertAfter(element.closest("table"));
+                        } else if (element.attr("type") == "select") {
+                            error.insertAfter(element.closest("table"));
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    }
+                });  
+                
+                if($("table.requiredRadios input[type=radio]").doesExist()) {
+                    $("table.typeList input[type=radio]").rules("add",{
+                        required: true
+                    });  
+                }
+                
+                
+                if($("textarea.max255").doesExist()) {
+                    $("textarea.max255").rules("add",{
+                        maxlength: 255,
+                        messages : {
+                            maxlength: "Maximum of 255 characters"
+                        }
+                    });
+                }
+                
+                if($("select.max3").doesExist()) {
+                    $("select.max3").attr('name',$("select.max3").attr('id'));
+                    $("select.max3").rules("add",{
+                        maxlength: 3,
+                        messages : {
+                            maxlength: "Maximum of 3 answers"
+                        }
+                    });
+                }
+                
+                jQuery.validator.addClassRules("fillone", {
+                    require_from_group: [1,".fillone"]
+                });
+                
+                jQuery.validator.messages.required = "this file is required.";
+            }
+            
+            jQuery.fn.doesExist = function(){
+                return $(this).length > 0;
+            };
+            
+            </script>
+            
+            <style>
+                
+                
+                div.form-group > label.control-label + div > span {
+                padding-top: 7px;
+                display: inline-block;
+                }
+                
+                html, body { background-color:#0069ba; font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif; }
+                
+                h1 { color:#0069ba; margin: 30px 0px; }
+                h2 { color:#fff; background-color:#0069ba; padding:8px; font-size:18px; }
+                h3 { color:#333; }
+                
+                
+                #formContainer { background-color:#fff; padding: 2% 5% 7%; margin-bottom:5%; }
+                
+                .btn {
+                margin:4px 10px 0px 0px;
+                }
+                
+                .btn-row { text-align:center; margin-bottom:10px; }
+                
+                span.required, label.error { color: red; }
+                
+                .loadingDiv { text-align: center; }
+                .loadingImage { height:32px; }
+                
+                .dateFormat { display:none; }
+                
+                div.bluePanel { background-color:#0069ba; color:#fff; padding:3%; }
+                p.leadParagraph { font-size:1.1em; font-weight:600;}
+                
+                .col-sm-9 .form-control { width:90%; }
+                
+                select[size] { height:34px; }
+                select[multiple] { height:100%; width:100%; }
+                img.form-control { border: none; box-shadow: none; height:24px; }
+                
+                input[checkbox] { box-shadow:none; }
+            </style>
+        </head>
+        <body>
+            
+            <div class="container">
+                
+                <!-- application stage -->
+                
+                <img src="{!URLFOR($Resource.Resources, '/resources/img/logo.jpg')}" alt="Make A Wish Australia" />
+                
+                <div id="formContainer" class="form-horizontal clearfix">
+                    
+                    <h1>
+                        Branch Volunteer Application Form
+                    </h1>   
+                    
+               
+                
+                <apex:outputPanel rendered="{!closeForm}">
+                    <p>
+                        This form is currently not available.
+                    </p>
+                </apex:outputPanel>
+                
+                <apex:outputPanel rendered="{!!closeForm}">
+                    
+                    <h3>
+                        Please review all of the required items below before commencing the application form.
+                    </h3>
+                    
+                    <p>
+                        To complete this form you will need;
+                    </p>
+                    
+                    <ol>
+                        <li>Download and read the <a href="/resource/VolunteerDocs/VolunteerDocs/code-of-conduct_June-2015.pdf" target="_blank">Code of Conduct</a></li>
+                        <li>Provide 100 points of Certified ID</li>
+                        <li>Provide a passport style photo of yourself</li>
+                        <li><i>Atleast</i> applied for a Working With Childrens check in your state.</li>
+                    </ol>
+                    
+                    <p style="font-weight:bold;border: 1px solid #ADADAD;border-radius: 4px;padding: 5px;text-align: center;">
+                     In order for the application to be completed and sent through to Make-A-Wish, make sure you click the "Complete Application" button once all paperwork is uploaded.
+                    </p>
+                    
+                    <apex:form id="volunteerFileForm" enctype="multipart/form-data" >
+                        
+                        <h2>
+                            100 points of Certified ID
+                        </h2>
+                        
+                        <p>
+                            <a href="/resource/VolunteerDocs/VolunteerDocs/Authorised%20Persons%20to%20Certify%20ID.pdf" target="_blank">Person authorised to certify identificatin</a>
+                        </p>
+                        
+                        <div id="idFiles">
+                            
+                       
+                        
+                        <div  class="form-group">
+                            <label class="{!inputCol}">
+                               <input type="file" name="idFieldInput" accept=".pdf,.doc,.docx,.jpg,.jpeg"/>
+                            </label>
+                            <div class="{!buttonCol}">
+                               
+                               <input type="button" id="flBtn" value="Upload" onclick="uploadFile(this)"  title="Upload" data-Desc="Certified Id" />
+                            </div>
+                            <div class="{!labelCol}">
+                               
+                               <input type="checkbox" class="required noshow" style="visibility:hidden;" name="chkCrimCheckForm" id="chkCertifiedId" /> 
+                            </div>
+                        </div>
+                            
+                             </div>
+                        
+                        <div class="form-group">
+                            <label class="{!inputCol}">
+                            </label>
+                            <div class="{!buttonCol}">
+                                <input type="button" value="Add Another File" onclick="addRow('idFiles')" id="_add"  title="Add Row"/>
+                            </div>
+                            <div class="{!labelCol}">
+                                
+                            </div>
+                        </div>
+                        
+                        <h2>
+                            CrimCheck Form
+                        </h2>
+                        
+                        <p>
+                            Complete and upload your CrimCheck form.
+                        </p>
+                        
+                        <div id="ppFiles" class="form-group">
+                            <label class="{!inputCol}">
+                               <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg" name="ccFileInput" />
+                            </label>
+                            <div class="{!buttonCol}">
+                               <input type="button" id="flBtn"   value="Upload" onclick="uploadFile(this)"  title="Upload"  data-Desc="CrimCheck Form" />
+                            </div>
+                            <div class="{!labelCol}">
+                               
+                               <input type="checkbox" class="required noshow" style="visibility:hidden;" name="chkCrimCheck" id="chkCrimCheck" /> 
+                            </div>
+                        </div>
+                        
+                        <h2>
+                            Passport photo
+                        </h2>
+                        
+                        <p>
+                            Passport style photo of yourself
+                        </p>
+                        
+                        <div id="ppFiles" class="form-group">
+                            <label class="{!inputCol}">
+                               <input type="file" accept=".jpg,.jpeg,.png,.bmp,.gif,.pdf" name="ppFileInput" />
+                            </label>
+                            <div class="{!buttonCol}">
+                               <input type="button" id="flBtn"   value="Upload" onclick="uploadFile(this)"  title="Upload"  data-Desc="Passport Photo" />
+                            </div>
+                            <div class="{!labelCol}">
+                               
+                               <input type="checkbox" class="required noshow" style="visibility:hidden;" name="chkPassportPhoto" id="chkPassportPhoto" /> 
+                            </div>
+                        </div>
+                        
+                         <div class="form-group" style="margin-top:20px;">
+                                    <label class="control-label {!labelCol}">
+                                    </label>
+                                    <div class="{!inputCol}">
+                                        <input class="btn btn-primary btn-lg submitBtn" type="submit" value="Complete Application" />
+                                        <apex:actionFunction name="submitForm" action="{!confirmFiles}" onbeforedomupdate="loading()" oncomplete="loadingReturn();" reRender="submitError" />
+                                        <img class="loadingImage" style="display:none;" src="{!URLFOR($Resource.Resources, '/resources/img/loader.gif')}" />
+                                    </div>
+                                </div>
+          
+                          <p style="font-weight:bold;border: 1px solid #ADADAD;border-radius: 4px;padding: 5px;text-align: center;">
+                              If you are having issues uploading your documents you may have an outdated browser. If you're still having issues please contact Kathryn Haslam at <a href="mailto:k.haslam@makeawish.org.au">k.haslam@makeawish.org.au</a>
+                          </p>
+                       
+                    </apex:form>
+                    
+                    
+                </apex:outputPanel>
+                    
+                    
+                           
+                   </div> 
+            </div>
+            
+        </body>
+    </html>
+    
+</apex:page>

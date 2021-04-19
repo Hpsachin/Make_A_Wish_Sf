@@ -1,0 +1,125 @@
+<apex:page standardController="Wish__c" extensions="wishStatusDisplayController" standardStylesheets="false" showHeader="false" cache="false" >
+    
+    <apex:includeScript value="{!URLFOR($Resource.Resources, '/resources/js/jquery.js')}"/>
+    <script>
+    	$(function() {
+            loadData();
+            });
+    </script>
+    
+
+    <style>
+    	ul#status { font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif; width:auto; display:inline-block; list-style:none; margin:0 auto; padding:0; position:relative; cursor:pointer; }
+    	ul#status li { display:inline-block; text-align:center; color:#fff; height:60px; line-height:60px; padding:0px 16px; border-right:1px solid #fff; } 
+        
+		ul#status li.full { background-color:#0069ba; }
+        ul#status li.fade { background-color:#80b4dd; }
+        
+        ul#status li.arrow {background-color:#80b4dd;  width: 0;height: 0;padding:0;margin-bottom:-24px;margin-left:-1px;border-style: solid;border-width: 30px 0 30px 10px;border-color: transparent transparent transparent #0069ba; }
+        
+        ul#status li:first-child { border-radius: 8px 0px 0px 8px; }
+    	ul#status li:last-child { border-radius: 0px 8px 8px 0px; }
+        
+        ul#status li span.stageDates {
+            display: none;
+            position:absolute;
+            top:0;
+        	left:16px;
+            text-align: left;
+            width: 96%;
+            margin-left: -16px;
+            border-radius: 9px;
+            padding-left: 4%;
+        	background:rgb(0,105,186);
+        }
+        
+        ul#status li:hover span.stageDates {
+       		display: block;
+        }
+        
+        ul#status li span.stageDates label { font-size:1.5em; line-height:1; }
+        
+        div#stageDetail { font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif; color:#0069ba; margin:5px; }
+        
+        div#stageDetail label { display:inline-block; text-align:right; }
+        div#stageDetail span { dislay:inline-block; font-size:3.5em; }
+        div#stageDetail span.space { padding:15px; }
+        
+    </style>
+    
+    <apex:form id="statusForm">
+        
+        <apex:actionFunction name="loadData" reRender="statusPanel" />
+
+        <apex:outputPanel id="statusPanel">
+            
+            <div id="stageDetail">
+                <label>
+                    current<br/>
+                    stage
+                </label>
+                <span>
+                    <apex:outputText value="{!w.Stage__c}" />
+                </span>
+				
+                 <span class="space"></span>
+                 
+                <label>
+                    days in<br/>
+                    stage
+                </label>
+                <span>
+                    <apex:outputText value="{!w.Days_in_Stage__c}" />
+                </span>
+                 
+                 <span class="space"></span>
+                 
+                 
+                 <label style="max-width:150px;max-height:56px;overflow:hidden;">
+                    <apex:outputText value="{!w.Status__c}" />
+                </label>
+                 
+            </div>
+            
+            
+            <apex:variable value="{!ISBLANK(w.Stage__c)}" var="reachStatus" />
+            
+<ul id="status">
+            <apex:repeat value="{!Status}" var="s"> 
+                
+                <li class="{!IF(!reachStatus,'full','fade')}">
+                    {!s}
+                    
+                    <apex:outputPanel rendered="{!CONTAINS(mapKey, s)}" styleClass="stageDates">
+                        
+                        stage <label>{!s}</label>&nbsp;&nbsp;
+
+                        <apex:outputText value="start <label>{0,date,dd'/'MM'/'yy}</label>" escape="false" rendered="{!statusMap[s].startDate != null}" >
+                            <apex:param value="{!statusMap[s].startDate}" />
+                        </apex:outputText>&nbsp;&nbsp;
+                        
+                        <apex:outputText value="end <label>{0,date,dd'/'MM'/'yy}</label>" escape="false" rendered="{!statusMap[s].endDate != null}" >
+                            <apex:param value="{!statusMap[s].endDate}" />
+                        </apex:outputText>&nbsp;&nbsp;
+                        
+                        days <label>{!statusMap[s].daysInStage}</label>
+                    </apex:outputPanel>
+					
+                </li>
+                
+                <apex:outputText rendered="{!w.Stage__c == s}">
+                	<li class="arrow"></li>
+                </apex:outputText>
+                
+                <apex:variable value="{!OR(reachStatus, w.Stage__c == s)}" var="reachStatus" />
+                
+            </apex:repeat>
+    </ul> 
+                
+
+            
+        </apex:outputPanel>
+        
+    </apex:form>
+        
+</apex:page>

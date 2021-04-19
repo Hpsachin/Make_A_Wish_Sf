@@ -1,0 +1,29 @@
+<aura:component>
+  <!-- Attributes -->
+  <aura:attribute name="isError" type="boolean" default="false" />
+  <aura:attribute name="errorMessage" type="string" />
+  <aura:attribute name="wishRecordId" type="string" />
+
+  <div class="slds-modal__content slds-p-around_medium">
+    <!--###### MODAL BOX BODY Part Start######-->
+    <div class="slds-media">
+      <div class="slds-media__figure">
+        <span class="slds-avatar slds-avatar_medium">
+          <lightning:icon iconName="utility:touch_action" size="large" />
+        </span>
+      </div>
+      <div class="slds-media__body">
+        <div class="slds-text-heading_medium">
+          <aura:renderIf isTrue="{!v.isError}">
+            {!v.errorMessage}
+            <aura:set attribute="else">
+              Wish Record Created Successful
+              <a onclick="{!c.navigateToRecord}">Link</a>
+            </aura:set>
+          </aura:renderIf>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</aura:component>
